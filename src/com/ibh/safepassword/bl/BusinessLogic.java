@@ -5,6 +5,7 @@
  */
 package com.ibh.safepassword.bl;
 
+import com.ibh.safepassword.dal.AuthenticationRepository;
 import com.ibh.safepassword.dal.CategoryRepository;
 import com.ibh.safepassword.dal.DbContext;
 
@@ -14,15 +15,21 @@ import com.ibh.safepassword.dal.DbContext;
  */
 public class BusinessLogic {
 
-  private CategoryRepository categoryRepository;
+  private CategoryRepository categRepos;
+  private AuthenticationRepository authRepos;
   
   public BusinessLogic() {
     DbContext.Init();
-    categoryRepository = new CategoryRepository();
+    categRepos = new CategoryRepository();
+    authRepos = new AuthenticationRepository();
   }
 
-  public CategoryRepository getCategoryRepository() {
-    return categoryRepository;
+  public CategoryRepository getCategRepos() {
+    return categRepos;
+  }
+
+  public AuthenticationRepository getAuthRepos() {
+    return authRepos;
   }
   
   

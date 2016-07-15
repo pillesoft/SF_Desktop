@@ -23,7 +23,7 @@ public class SF_Desktop {
     
     
     BusinessLogic bl = new BusinessLogic();
-    List<Category> clist = bl.getCategoryRepository().GetList();
+    List<Category> clist = bl.getCategRepos().GetList();
     System.out.println(clist.size());
     
    
@@ -39,7 +39,7 @@ public class SF_Desktop {
     //Category c1 = bl.getCategoryRepository().GetbyId(5);
     //bl.getCategoryRepository().Delete(c1);
     
-    clist = bl.getCategoryRepository().GetList();
+    clist = bl.getCategRepos().GetList();
     System.out.println(clist.size());
     
 

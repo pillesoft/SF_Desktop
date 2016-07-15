@@ -17,9 +17,11 @@ import org.hibernate.Session;
 public class BaseRepository<T> implements IRepository<T>  {
 
   final T entityType;
+  final String entityTypeName;
   
   public BaseRepository() {
     this.entityType = (T)(Class)((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+    this.entityTypeName = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0].getTypeName();
   }
   
   
@@ -71,12 +73,12 @@ public class BaseRepository<T> implements IRepository<T>  {
   }
 
   @Override
-  public List<T> GetList() {
+  public List<T> GetList(String queryexpr) {
     
     Session sess = DbContext.getSessionFactory().openSession();
     sess.beginTransaction();
     
-    Query q = sess.createQuery("from Category");
+    Query q = sess.createQuery(queryexpr);
     List ret = q.getResultList();
     
     sess.getTransaction().commit();
@@ -84,6 +86,21 @@ public class BaseRepository<T> implements IRepository<T>  {
     
     return ret;
     
+  }
+
+  @Override
+  public List<T> GetList() {
+    Session sess = DbContext.getSessionFactory().openSession();
+    sess.beginTransaction();
+    
+    String query = "from " + entityTypeName;
+    Query q = sess.createQuery(query);
+    List ret = q.getResultList();
+    
+    sess.getTransaction().commit();
+    sess.close();
+    
+    return ret;
   }
   
 }

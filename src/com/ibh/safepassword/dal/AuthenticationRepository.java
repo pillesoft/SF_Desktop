@@ -5,18 +5,9 @@
  */
 package com.ibh.safepassword.dal;
 
-import java.util.List;
-
 /**
  *
  * @author ihorvath
  */
-public interface IRepository<T> {
-  void Add(T obj);
-  void Update(T obj);
-  void Delete(T obj);
-  T GetbyId(int id);
-
-  List<T> GetList(String queryexpr);
-  List<T> GetList();
+public class AuthenticationRepository extends BaseRepository<Authentication> {  
 }
