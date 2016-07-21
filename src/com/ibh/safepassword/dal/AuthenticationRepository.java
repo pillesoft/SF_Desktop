@@ -5,9 +5,16 @@
  */
 package com.ibh.safepassword.dal;
 
+import java.util.List;
+
 /**
  *
  * @author ihorvath
  */
-public class AuthenticationRepository extends BaseRepository<Authentication> {  
+public class AuthenticationRepository extends BaseRepository<Authentication> {
+  public List GetAuthLimited(String filtertitle, String filtercateg) {
+    List ret = GetList("SELECT a.title, a.weburl, a.description, a.category.name, a.id FROM Authentication a");
+    
+    return ret;
+  }
 }

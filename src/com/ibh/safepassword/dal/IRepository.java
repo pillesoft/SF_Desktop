@@ -17,6 +17,6 @@ public interface IRepository<T> {
   void Delete(T obj);
   T GetbyId(int id);
 
-  List<T> GetList(String queryexpr);
+  List GetList(String queryexpr);
   List<T> GetList();
 }

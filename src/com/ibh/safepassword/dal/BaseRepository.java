@@ -73,7 +73,7 @@ public class BaseRepository<T> implements IRepository<T>  {
   }
 
   @Override
-  public List<T> GetList(String queryexpr) {
+  public List GetList(String queryexpr) {
     
     Session sess = DbContext.getSessionFactory().openSession();
     sess.beginTransaction();

@@ -15,11 +15,11 @@ import com.ibh.safepassword.dal.DbContext;
  */
 public class BusinessLogic {
 
-  private CategoryRepository categRepos;
-  private AuthenticationRepository authRepos;
+  private final CategoryRepository categRepos;
+  private final AuthenticationRepository authRepos;
+  private String loggedInName;
   
   public BusinessLogic() {
-    DbContext.Init();
     categRepos = new CategoryRepository();
     authRepos = new AuthenticationRepository();
   }
@@ -31,7 +31,33 @@ public class BusinessLogic {
   public AuthenticationRepository getAuthRepos() {
     return authRepos;
   }
+
+  public String getLoggedInName() {
+    return loggedInName;
+  }
   
-  
+  public boolean Login(String DbName, char[] pwd, char[] encrpwd) {
+    try {
+      DbContext.Connect(DbName, pwd, encrpwd);
+      loggedInName = DbName;
+      return true;
+    }
+    catch (Exception e) {
+      java.util.logging.Logger.getLogger(BusinessLogic.class.getName()).log(java.util.logging.Level.SEVERE, null, e);
+      return false;
+    }
+  }
+
+  public boolean Create(String DbName, char[] pwd, char[] encrpwd) {
+    try {
+      DbContext.CreateDatabase(DbName, pwd, encrpwd);
+      loggedInName = DbName;
+      return true;
+    }
+    catch (Exception e) {
+      java.util.logging.Logger.getLogger(BusinessLogic.class.getName()).log(java.util.logging.Level.SEVERE, null, e);
+      return false;
+    }
+  }
   
 }

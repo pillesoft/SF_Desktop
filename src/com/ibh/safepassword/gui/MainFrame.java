@@ -5,19 +5,96 @@
  */
 package com.ibh.safepassword.gui;
 
+import com.ibh.safepassword.bl.BusinessLogic;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+
 /**
  *
  * @author ihorvath
  */
 public class MainFrame extends javax.swing.JFrame {
 
+  
+  private BusinessLogic bl;
+  
   /**
    * Creates new form MainFrame
    */
   public MainFrame() {
     initComponents();
+
+    initTable();
+    
+    bl = new BusinessLogic();
+    
+    LoginDialog ld = new LoginDialog(this, true);
+    ld.addWindowListener(new WindowAdapter() {
+        @Override
+        public void windowClosed(WindowEvent e) {
+          setVisible(true);
+          setTitle(getTitle() + " - " + bl.getLoggedInName());
+          
+          setTable();
+        }
+                
+      }
+    );
+    ld.setVisible(true);
+    
   }
 
+  public BusinessLogic getBL() {
+    return bl;
+  }
+  
+  private void initTable() {
+    String[] columnNames = {"Title",
+                        "Category",
+                        "Web Address"};
+
+    
+    DefaultTableModel tdm = new DefaultTableModel() {
+      @Override
+      public boolean isCellEditable(int row, int col) {
+        return false;
+      }
+    };
+    tblData.setModel(tdm);
+    
+    TableColumnModel tcm = tblData.getColumnModel();
+    for (String columnName : columnNames) {
+      TableColumn tc = new TableColumn();
+      tc.setHeaderValue(columnName);
+      tcm.addColumn(tc);
+    }
+
+  }
+  
+  private void setTable() {
+    
+    TableModel tm = tblData.getModel();
+    List data = bl.getAuthRepos().GetAuthLimited("", "");
+    int rowidx = 1;
+    for (Object row : data) {
+      Object[] rowdata = (Object[])row;
+      for (int colidx = 1; colidx <= 5; colidx++) {
+        tm.setValueAt(rowdata[colidx-1], rowidx, colidx);
+      }
+      rowidx++;
+      
+    }
+    
+    String sa = "adf";
+  }
+  
   /**
    * This method is called from within the constructor to initialize the form.
    * WARNING: Do NOT modify this code. The content of this method is always
@@ -41,7 +118,7 @@ public class MainFrame extends javax.swing.JFrame {
     txtFilterCategory = new javax.swing.JTextField();
     cmdClearFilter = new javax.swing.JButton();
     jScrollPane1 = new javax.swing.JScrollPane();
-    jTable1 = new javax.swing.JTable();
+    tblData = new javax.swing.JTable();
     jScrollPane2 = new javax.swing.JScrollPane();
     jTextArea1 = new javax.swing.JTextArea();
 
@@ -92,6 +169,11 @@ public class MainFrame extends javax.swing.JFrame {
     txtFilterCategory.setText(bundle.getString("MainFrame.txtFilterCategory.text")); // NOI18N
 
     cmdClearFilter.setText(bundle.getString("MainFrame.cmdClearFilter.text")); // NOI18N
+    cmdClearFilter.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        cmdClearFilterActionPerformed(evt);
+      }
+    });
 
     javax.swing.GroupLayout pnlFilterLayout = new javax.swing.GroupLayout(pnlFilter);
     pnlFilter.setLayout(pnlFilterLayout);
@@ -128,19 +210,17 @@ public class MainFrame extends javax.swing.JFrame {
         .addContainerGap())
     );
 
-    jTable1.setModel(new javax.swing.table.DefaultTableModel(
+    tblData.setModel(new javax.swing.table.DefaultTableModel(
       new Object [][] {
-        {null, null, null, null},
-        {null, null, null, null},
-        {null, null, null, null},
-        {null, null, null, null}
+
       },
       new String [] {
-        "Title 1", "Title 2", "Title 3", "Title 4"
+
       }
     ));
-    jScrollPane1.setViewportView(jTable1);
+    jScrollPane1.setViewportView(tblData);
 
+    jTextArea1.setEditable(false);
     jTextArea1.setColumns(20);
     jTextArea1.setRows(5);
     jScrollPane2.setViewportView(jTextArea1);
@@ -173,40 +253,12 @@ public class MainFrame extends javax.swing.JFrame {
     pack();
   }// </editor-fold>//GEN-END:initComponents
 
-  /**
-   * @param args the command line arguments
-   */
-  public static void main(String args[]) {
-    /* Set the Nimbus look and feel */
-    //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-    /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-     */
-    try {
-      for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-        if ("Nimbus".equals(info.getName())) {
-          javax.swing.UIManager.setLookAndFeel(info.getClassName());
-          break;
-        }
-      }
-    } catch (ClassNotFoundException ex) {
-      java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (InstantiationException ex) {
-      java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (IllegalAccessException ex) {
-      java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-      java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    }
-    //</editor-fold>
-
-    /* Create and display the form */
-    java.awt.EventQueue.invokeLater(new Runnable() {
-      public void run() {
-        new MainFrame().setVisible(true);
-      }
-    });
-  }
+  private void cmdClearFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdClearFilterActionPerformed
+    // TODO add your handling code here:
+    txtFilterTitle.setText("");
+    txtFilterCategory.setText("");
+    setTable();
+  }//GEN-LAST:event_cmdClearFilterActionPerformed
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton cmdClearFilter;
@@ -217,13 +269,13 @@ public class MainFrame extends javax.swing.JFrame {
   private javax.swing.JButton cmdShow;
   private javax.swing.JScrollPane jScrollPane1;
   private javax.swing.JScrollPane jScrollPane2;
-  private javax.swing.JTable jTable1;
   private javax.swing.JTextArea jTextArea1;
   private javax.swing.JLabel lblCategory;
   private javax.swing.JLabel lblTitle;
   private javax.swing.JPanel pnlButtons;
   private javax.swing.JPanel pnlFilter;
   private javax.swing.JPanel pnlMain;
+  private javax.swing.JTable tblData;
   private javax.swing.JTextField txtFilterCategory;
   private javax.swing.JTextField txtFilterTitle;
   // End of variables declaration//GEN-END:variables
