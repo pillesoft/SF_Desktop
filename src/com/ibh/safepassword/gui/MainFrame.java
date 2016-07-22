@@ -10,11 +10,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JTable;
+import javax.swing.RowFilter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -22,79 +24,124 @@ import javax.swing.table.TableModel;
  */
 public class MainFrame extends javax.swing.JFrame {
 
-  
   private BusinessLogic bl;
-  
+  private TableRowSorter<IBHTableModel> sorter;
+
   /**
    * Creates new form MainFrame
    */
   public MainFrame() {
     initComponents();
 
-    initTable();
+    txtFilterTitle.getDocument().addDocumentListener(
+            new DocumentListener() {
+      @Override
+      public void changedUpdate(DocumentEvent e) {
+        applyFilter();
+      }
+
+      @Override
+      public void insertUpdate(DocumentEvent e) {
+        applyFilter();
+      }
+
+      @Override
+      public void removeUpdate(DocumentEvent e) {
+        applyFilter();
+      }
+    });
+
+    txtFilterCategory.getDocument().addDocumentListener(
+            new DocumentListener() {
+      @Override
+      public void changedUpdate(DocumentEvent e) {
+        applyFilter();
+      }
+
+      @Override
+      public void insertUpdate(DocumentEvent e) {
+        applyFilter();
+      }
+
+      @Override
+      public void removeUpdate(DocumentEvent e) {
+        applyFilter();
+      }
+    });
     
     bl = new BusinessLogic();
-    
+
     LoginDialog ld = new LoginDialog(this, true);
     ld.addWindowListener(new WindowAdapter() {
-        @Override
-        public void windowClosed(WindowEvent e) {
-          setVisible(true);
-          setTitle(getTitle() + " - " + bl.getLoggedInName());
-          
-          setTable();
-        }
-                
+      @Override
+      public void windowClosed(WindowEvent e) {
+        setVisible(true);
+        setTitle(getTitle() + " - " + bl.getLoggedInName());
+
+        initTable();
+
+        setTable();
       }
+
+    }
     );
     ld.setVisible(true);
-    
+
   }
 
   public BusinessLogic getBL() {
     return bl;
   }
-  
+
   private void initTable() {
+
     String[] columnNames = {"Title",
-                        "Category",
-                        "Web Address"};
+      "Category",
+      "Web Address",
+      "Description",
+      "ID"};
 
+    IBHTableModel dtm = new IBHTableModel();
+    sorter = new TableRowSorter<>(dtm);
+    dtm.setColumnIdentifiers(columnNames);
+    tblData.setModel(dtm);
+    tblData.setRowSorter(sorter);
+
+    tblData.removeColumn(tblData.getColumnModel().getColumn(4));
+    tblData.removeColumn(tblData.getColumnModel().getColumn(3));
     
-    DefaultTableModel tdm = new DefaultTableModel() {
+    tblData.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
       @Override
-      public boolean isCellEditable(int row, int col) {
-        return false;
+      public void valueChanged(ListSelectionEvent lse) {
+        int selrow = tblData.getSelectedRow();
+        txtDescription.setText("");
+        if (selrow > -1) {
+          Object descvalue = tblData.getModel().getValueAt(selrow, 3);
+          if (descvalue != null) {
+            txtDescription.setText(descvalue.toString());
+          }
+        }
       }
-    };
-    tblData.setModel(tdm);
-    
-    TableColumnModel tcm = tblData.getColumnModel();
-    for (String columnName : columnNames) {
-      TableColumn tc = new TableColumn();
-      tc.setHeaderValue(columnName);
-      tcm.addColumn(tc);
+    });
+  }
+
+  private void setTable() {
+
+    DefaultTableModel tm = (DefaultTableModel) tblData.getModel();
+    if (tm.getRowCount() > 0) {
+      for (int i = tm.getRowCount(); i > 0; i--) {
+        tm.removeRow(i - 1);
+      }
+    }
+    List data = bl.getAuthRepos().GetAuthLimited("", "");
+    for (Object row : data) {
+      Object[] rowdata = (Object[]) row;
+      tm.addRow(rowdata);
+
     }
 
   }
-  
-  private void setTable() {
-    
-    TableModel tm = tblData.getModel();
-    List data = bl.getAuthRepos().GetAuthLimited("", "");
-    int rowidx = 1;
-    for (Object row : data) {
-      Object[] rowdata = (Object[])row;
-      for (int colidx = 1; colidx <= 5; colidx++) {
-        tm.setValueAt(rowdata[colidx-1], rowidx, colidx);
-      }
-      rowidx++;
-      
-    }
-    
-    String sa = "adf";
-  }
-  
+
   /**
    * This method is called from within the constructor to initialize the form.
    * WARNING: Do NOT modify this code. The content of this method is always
@@ -120,7 +167,7 @@ public class MainFrame extends javax.swing.JFrame {
     jScrollPane1 = new javax.swing.JScrollPane();
     tblData = new javax.swing.JTable();
     jScrollPane2 = new javax.swing.JScrollPane();
-    jTextArea1 = new javax.swing.JTextArea();
+    txtDescription = new javax.swing.JTextArea();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
@@ -218,12 +265,13 @@ public class MainFrame extends javax.swing.JFrame {
 
       }
     ));
+    tblData.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
     jScrollPane1.setViewportView(tblData);
 
-    jTextArea1.setEditable(false);
-    jTextArea1.setColumns(20);
-    jTextArea1.setRows(5);
-    jScrollPane2.setViewportView(jTextArea1);
+    txtDescription.setEditable(false);
+    txtDescription.setColumns(20);
+    txtDescription.setRows(5);
+    jScrollPane2.setViewportView(txtDescription);
 
     javax.swing.GroupLayout pnlMainLayout = new javax.swing.GroupLayout(pnlMain);
     pnlMain.setLayout(pnlMainLayout);
@@ -260,6 +308,21 @@ public class MainFrame extends javax.swing.JFrame {
     setTable();
   }//GEN-LAST:event_cmdClearFilterActionPerformed
 
+  private void applyFilter() {
+    List<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(2);
+    filters.add(RowFilter.regexFilter(txtFilterTitle.getText(), 0));
+    filters.add(RowFilter.regexFilter(txtFilterCategory.getText(), 1));
+   
+    RowFilter<IBHTableModel, Object> rf = null;
+    //If current expression doesn't parse, don't update.
+    try {
+      rf = RowFilter.andFilter(filters);
+    } catch (java.util.regex.PatternSyntaxException e) {
+      return;
+    }
+    sorter.setRowFilter(rf);
+  }
+    
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton cmdClearFilter;
   private javax.swing.JButton cmdDel;
@@ -269,14 +332,15 @@ public class MainFrame extends javax.swing.JFrame {
   private javax.swing.JButton cmdShow;
   private javax.swing.JScrollPane jScrollPane1;
   private javax.swing.JScrollPane jScrollPane2;
-  private javax.swing.JTextArea jTextArea1;
   private javax.swing.JLabel lblCategory;
   private javax.swing.JLabel lblTitle;
   private javax.swing.JPanel pnlButtons;
   private javax.swing.JPanel pnlFilter;
   private javax.swing.JPanel pnlMain;
   private javax.swing.JTable tblData;
+  private javax.swing.JTextArea txtDescription;
   private javax.swing.JTextField txtFilterCategory;
   private javax.swing.JTextField txtFilterTitle;
   // End of variables declaration//GEN-END:variables
+
 }
