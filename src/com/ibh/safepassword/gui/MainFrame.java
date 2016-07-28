@@ -6,11 +6,20 @@
 package com.ibh.safepassword.gui;
 
 import com.ibh.safepassword.bl.BusinessLogic;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.swing.RowFilter;
+import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
@@ -26,6 +35,11 @@ public class MainFrame extends javax.swing.JFrame {
 
   private BusinessLogic bl;
   private TableRowSorter<IBHTableModel> sorter;
+
+  // the auth show dialog closes the dialog after 10 secs
+  private final int _AuthInfoDialogShowTime = 10;
+  private int _AuthInfoDialogShowTimeCounter;
+  private final ResourceBundle bundle;
 
   /**
    * Creates new form MainFrame
@@ -68,7 +82,7 @@ public class MainFrame extends javax.swing.JFrame {
         applyFilter();
       }
     });
-    
+
     bl = new BusinessLogic();
 
     LoginDialog ld = new LoginDialog(this, true);
@@ -87,6 +101,8 @@ public class MainFrame extends javax.swing.JFrame {
     );
     ld.setVisible(true);
 
+    bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
+    
   }
 
   public BusinessLogic getBL() {
@@ -109,7 +125,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     tblData.removeColumn(tblData.getColumnModel().getColumn(4));
     tblData.removeColumn(tblData.getColumnModel().getColumn(3));
-    
+
     tblData.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
       @Override
       public void valueChanged(ListSelectionEvent lse) {
@@ -183,21 +199,41 @@ public class MainFrame extends javax.swing.JFrame {
     cmdShow.setText(bundle.getString("MainFrame.cmdShow.text")); // NOI18N
     cmdShow.setMaximumSize(new java.awt.Dimension(100, 50));
     cmdShow.setPreferredSize(new java.awt.Dimension(100, 40));
+    cmdShow.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        cmdShowActionPerformed(evt);
+      }
+    });
     pnlButtons.add(cmdShow);
 
     cmdNew.setText(bundle.getString("MainFrame.cmdNew.text")); // NOI18N
     cmdNew.setMaximumSize(new java.awt.Dimension(100, 50));
     cmdNew.setPreferredSize(new java.awt.Dimension(100, 40));
+    cmdNew.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        cmdNewActionPerformed(evt);
+      }
+    });
     pnlButtons.add(cmdNew);
 
     cmdMod.setText(bundle.getString("MainFrame.cmdMod.text")); // NOI18N
     cmdMod.setMaximumSize(new java.awt.Dimension(100, 50));
     cmdMod.setPreferredSize(new java.awt.Dimension(100, 40));
+    cmdMod.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        cmdModActionPerformed(evt);
+      }
+    });
     pnlButtons.add(cmdMod);
 
     cmdDel.setText(bundle.getString("MainFrame.cmdDel.text")); // NOI18N
     cmdDel.setMaximumSize(new java.awt.Dimension(100, 50));
     cmdDel.setPreferredSize(new java.awt.Dimension(100, 40));
+    cmdDel.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        cmdDelActionPerformed(evt);
+      }
+    });
     pnlButtons.add(cmdDel);
 
     cmdHistory.setText(bundle.getString("MainFrame.cmdHistory.text")); // NOI18N
@@ -308,11 +344,87 @@ public class MainFrame extends javax.swing.JFrame {
     setTable();
   }//GEN-LAST:event_cmdClearFilterActionPerformed
 
+  private void cmdShowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdShowActionPerformed
+    int selrow = tblData.getSelectedRow();
+    if (selrow > -1) {
+      Object intvalue = tblData.getModel().getValueAt(selrow, 4);
+      if (intvalue != null) {
+        int id = Integer.parseInt(intvalue.toString());
+
+        AuthInfoDialog aid = new AuthInfoDialog(this, true, bl, id, _AuthInfoDialogShowTime);
+
+        Timer timer = new Timer(1000, new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent ae) {
+            if (((Timer) ae.getSource()).isRepeats()) {
+              _AuthInfoDialogShowTimeCounter--;
+              aid.cmdClose.setText(String.format("%s (%s)", bundle.getString("AuthInfoDialog.cmdClose.text"), _AuthInfoDialogShowTimeCounter));
+//      System.out.println(secstoshow);
+            }
+
+            if (_AuthInfoDialogShowTimeCounter == 0) {
+              ((Timer) ae.getSource()).setRepeats(false);
+              aid.setVisible(false);
+              aid.dispose();
+            }
+          }
+        });
+        //AuthInfoTimer timer = new AuthInfoTimer(1000, AuthInfoTimer, aid, secstoshow);
+
+        aid.addWindowListener(new WindowAdapter() {
+          @Override
+          public void windowClosed(WindowEvent e) {
+            // needs to clear the clipboard
+            try {
+              Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
+
+              clpbrd.setContents(new Transferable() {
+                @Override
+                public DataFlavor[] getTransferDataFlavors() {
+                  return new DataFlavor[0];
+                }
+
+                @Override
+                public boolean isDataFlavorSupported(DataFlavor flavor) {
+                  return false;
+                }
+
+                @Override
+                public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
+                  throw new UnsupportedFlavorException(flavor);
+                }
+              }, null);
+            } catch (IllegalStateException ise) {
+            }
+          }
+
+        }
+        );
+
+        timer.start();
+
+        aid.setVisible(true);
+      }
+    }
+  }//GEN-LAST:event_cmdShowActionPerformed
+
+  private void cmdNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdNewActionPerformed
+    // TODO add your handling code here:
+  }//GEN-LAST:event_cmdNewActionPerformed
+
+  private void cmdModActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdModActionPerformed
+    // TODO add your handling code here:
+  }//GEN-LAST:event_cmdModActionPerformed
+
+  private void cmdDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdDelActionPerformed
+    // TODO add your handling code here:
+  }//GEN-LAST:event_cmdDelActionPerformed
+
   private void applyFilter() {
-    List<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(2);
+    List<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);
     filters.add(RowFilter.regexFilter(txtFilterTitle.getText(), 0));
     filters.add(RowFilter.regexFilter(txtFilterCategory.getText(), 1));
-   
+
     RowFilter<IBHTableModel, Object> rf = null;
     //If current expression doesn't parse, don't update.
     try {
@@ -322,7 +434,7 @@ public class MainFrame extends javax.swing.JFrame {
     }
     sorter.setRowFilter(rf);
   }
-    
+
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton cmdClearFilter;
   private javax.swing.JButton cmdDel;

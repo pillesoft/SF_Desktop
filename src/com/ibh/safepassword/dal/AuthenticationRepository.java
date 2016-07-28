@@ -17,4 +17,10 @@ public class AuthenticationRepository extends BaseRepository<Authentication> {
     
     return ret;
   }
+  
+  public AuthInfo GetAuthInfo(int id) {
+    Authentication a = GetbyId(id);
+    AuthInfo ret = new AuthInfo(a.getId(), a.getUsername(), a.getPassword(), a.getTitle());
+    return ret;
+  }
 }

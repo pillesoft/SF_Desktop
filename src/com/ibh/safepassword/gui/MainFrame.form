@@ -56,6 +56,9 @@
               <Dimension value="[100, 40]"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdShowActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="cmdNew">
           <Properties>
@@ -69,6 +72,9 @@
               <Dimension value="[100, 40]"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdNewActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="cmdMod">
           <Properties>
@@ -82,6 +88,9 @@
               <Dimension value="[100, 40]"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdModActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="cmdDel">
           <Properties>
@@ -95,6 +104,9 @@
               <Dimension value="[100, 40]"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdDelActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="cmdHistory">
           <Properties>
