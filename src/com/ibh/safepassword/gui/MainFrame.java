@@ -39,7 +39,7 @@ public class MainFrame extends javax.swing.JFrame {
   // the auth show dialog closes the dialog after 10 secs
   private final int _AuthInfoDialogShowTime = 10;
   private int _AuthInfoDialogShowTimeCounter;
-  private final ResourceBundle bundle;
+  private final ResourceBundle _bundle;
 
   /**
    * Creates new form MainFrame
@@ -47,6 +47,7 @@ public class MainFrame extends javax.swing.JFrame {
   public MainFrame() {
     initComponents();
 
+    _bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
     txtFilterTitle.getDocument().addDocumentListener(
             new DocumentListener() {
       @Override
@@ -101,8 +102,6 @@ public class MainFrame extends javax.swing.JFrame {
     );
     ld.setVisible(true);
 
-    bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
-    
   }
 
   public BusinessLogic getBL() {
@@ -111,9 +110,10 @@ public class MainFrame extends javax.swing.JFrame {
 
   private void initTable() {
 
-    String[] columnNames = {"Title",
-      "Category",
-      "Web Address",
+    String[] columnNames = {
+      _bundle.getString("MainFrame.tblData.ColTitle.text"),
+      _bundle.getString("MainFrame.tblData.ColCategory.text"),
+      _bundle.getString("MainFrame.tblData.ColWebUrl.text"),
       "Description",
       "ID"};
 
@@ -358,7 +358,7 @@ public class MainFrame extends javax.swing.JFrame {
           public void actionPerformed(ActionEvent ae) {
             if (((Timer) ae.getSource()).isRepeats()) {
               _AuthInfoDialogShowTimeCounter--;
-              aid.cmdClose.setText(String.format("%s (%s)", bundle.getString("AuthInfoDialog.cmdClose.text"), _AuthInfoDialogShowTimeCounter));
+              aid.cmdClose.setText(String.format("%s (%s)", _bundle.getString("AuthInfoDialog.cmdClose.text"), _AuthInfoDialogShowTimeCounter));
 //      System.out.println(secstoshow);
             }
 
@@ -409,15 +409,34 @@ public class MainFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_cmdShowActionPerformed
 
   private void cmdNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdNewActionPerformed
-    // TODO add your handling code here:
+    AuthCRUDDialog acrudd = new AuthCRUDDialog(this, true, CRUDEnum.New, bl, 0);
+    acrudd.setVisible(true);
   }//GEN-LAST:event_cmdNewActionPerformed
 
   private void cmdModActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdModActionPerformed
-    // TODO add your handling code here:
+    int selrow = tblData.getSelectedRow();
+    if (selrow > -1) {
+      Object intvalue = tblData.getModel().getValueAt(selrow, 4);
+      if (intvalue != null) {
+        int id = Integer.parseInt(intvalue.toString());
+
+        AuthCRUDDialog acrudd = new AuthCRUDDialog(this, true, CRUDEnum.Update, bl, id);
+        acrudd.setVisible(true);
+      }
+    }
   }//GEN-LAST:event_cmdModActionPerformed
 
   private void cmdDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdDelActionPerformed
-    // TODO add your handling code here:
+    int selrow = tblData.getSelectedRow();
+    if (selrow > -1) {
+      Object intvalue = tblData.getModel().getValueAt(selrow, 4);
+      if (intvalue != null) {
+        int id = Integer.parseInt(intvalue.toString());
+
+        AuthCRUDDialog acrudd = new AuthCRUDDialog(this, true, CRUDEnum.Delete, bl, id);
+        acrudd.setVisible(true);
+      }
+    }
   }//GEN-LAST:event_cmdDelActionPerformed
 
   private void applyFilter() {
