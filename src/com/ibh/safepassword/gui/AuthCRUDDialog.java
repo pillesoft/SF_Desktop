@@ -8,17 +8,20 @@ package com.ibh.safepassword.gui;
 import com.ibh.safepassword.bl.BusinessLogic;
 import com.ibh.safepassword.dal.Authentication;
 import com.ibh.safepassword.dal.Category;
+import java.awt.Color;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComboBox;
-import javax.swing.event.ListDataListener;
 import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
+import org.jdesktop.beansbinding.AutoBinding;
+import org.jdesktop.beansbinding.BeanProperty;
+import org.jdesktop.beansbinding.Binding;
+import org.jdesktop.beansbinding.BindingGroup;
+import org.jdesktop.beansbinding.Bindings;
 
 /**
  *
@@ -29,8 +32,9 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
   private final BusinessLogic _bl;
   private final CRUDEnum _mode;
   private final ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
-  private Authentication _instance;
- 
+  private Authentication instance;
+  private BindingGroup bindingGroup; 
+  
   /**
    * Creates new form AuthCRUDDialog
    */
@@ -47,42 +51,130 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
     switch (_mode) {
       case New:
         setTitle(bundle.getString("AuthCRUDDialog.title_new"));
-        _instance = new Authentication();
-        _instance.setId(id);
-        _instance.setCategory(categlist.get(1));
+        instance = new Authentication();
+        instance.setId(id);
+        instance.setCategory(categlist.get(1));
         break;
       case Update:
         setTitle(bundle.getString("AuthCRUDDialog.title_update"));
-        _instance = bl.getAuthRepos().GetbyId(id);
+        instance = bl.getAuthRepos().GetbyId(id);
         break;
       case Delete:
         setTitle(bundle.getString("AuthCRUDDialog.title_delete"));
         cmdSave.setText(bundle.getString("AuthCRUDDialog.cmbSave.text_delete"));
-        _instance = bl.getAuthRepos().GetbyId(id);
+        instance = bl.getAuthRepos().GetbyId(id);
         break;
     }
     
     Category[] categarray = categlist.toArray(new Category[0]);
 
-    DefaultComboBoxModel<Category> cbm = new DefaultComboBoxModel<Category>(categarray);
+    DefaultComboBoxModel<Category> cbm = new DefaultComboBoxModel<>(categarray);
     cmbCategory.setModel(cbm);
 
     cmbCategory.setRenderer(new IBHCategoryComboRenderer());
     cmbCategory.setEditor(new IBHCategoryComboEditor());
     
-    setFields();
+    setBindings();
+
+    instance.addPropertyChangeListener((PropertyChangeEvent pce) -> {
+      String propname = pce.getPropertyName();
+      Binding b = bindingGroup.getBinding(propname);
+      
+      javax.swing.JComponent p = (javax.swing.JComponent)b.getTargetObject();
+      
+      Set<ConstraintViolation<Authentication>> errors = instance.getErrors().get(propname);
+      if (errors != null && errors.size() > 0) {
+        String errmess = "";
+        for (ConstraintViolation<Authentication> error : errors) {
+          errmess += error.getMessage() + "\n";
+        }
+        
+        p.setBackground(Color.PINK);
+        p.setToolTipText(errmess);
+        
+      }
+      else {
+        p.setBackground(Color.WHITE);
+        p.setToolTipText(null);
+      }
+      //System.out.println("most valtozott property");
+      
+      cmdSave.setEnabled(instance.getIsValid());
+    });
     
     this.pack();
   }
 
-  private void setFields() {
-    txtTitle.setText(_instance.getTitle());
-    txtUserName.setText(_instance.getUsername());
-    txtPassword.setText(_instance.getPassword());
-    txtWebUrl.setText(_instance.getWeburl());
-    txtDescription.setText(_instance.getDescription());
-    cmbCategory.setSelectedItem(_instance.getCategory());
+  private void setBindings() {
+    bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
+    
+    Binding binding = Bindings.createAutoBinding(
+            AutoBinding.UpdateStrategy.READ_WRITE, 
+            instance, 
+            BeanProperty.create("title"),
+            txtTitle, 
+            BeanProperty.create("text"),
+            "title"
+    );
+    bindingGroup.addBinding(binding);
+
+    binding = Bindings.createAutoBinding(
+            AutoBinding.UpdateStrategy.READ_WRITE, 
+            instance, 
+            BeanProperty.create("category"), 
+            cmbCategory, 
+            BeanProperty.create("selectedItem"),
+            "category"
+    );
+    bindingGroup.addBinding(binding);
+
+    binding = Bindings.createAutoBinding(
+            AutoBinding.UpdateStrategy.READ_WRITE, 
+            instance, 
+            BeanProperty.create("username"), 
+            txtUserName, 
+            BeanProperty.create("text"),
+            "username"
+    );
+    bindingGroup.addBinding(binding);
+
+    binding = Bindings.createAutoBinding(
+            AutoBinding.UpdateStrategy.READ_WRITE, 
+            instance, 
+            BeanProperty.create("password"), 
+            txtPassword, 
+            BeanProperty.create("text"),
+            "password"
+    );
+    bindingGroup.addBinding(binding);
+
+    binding = Bindings.createAutoBinding(
+            AutoBinding.UpdateStrategy.READ_WRITE, 
+            instance, 
+            BeanProperty.create("weburl"), 
+            txtWebUrl, 
+            BeanProperty.create("text"),
+            "weburl"
+    );
+    bindingGroup.addBinding(binding);
+
+    binding = Bindings.createAutoBinding(
+            AutoBinding.UpdateStrategy.READ_WRITE, 
+            instance, 
+            BeanProperty.create("description"), 
+            txtDescription, 
+            BeanProperty.create("text"),
+            "description"
+    );
+    bindingGroup.addBinding(binding);
+
+    bindingGroup.bind();
   }
+  
+  public Authentication getInstance() {
+    return instance;
+  }
+  
   /**
    * This method is called from within the constructor to initialize the form.
    * WARNING: Do NOT modify this code. The content of this method is always
@@ -136,12 +228,6 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
     lblWebUrl.setText(bundle.getString("AuthCRUDDialog.lblWebUrl.text")); // NOI18N
 
     cmbCategory.setEditable(true);
-
-    txtUserName.setText(bundle.getString("AuthCRUDDialog.jTextField1.text")); // NOI18N
-
-    txtPassword.setText(bundle.getString("AuthCRUDDialog.jTextField1.text")); // NOI18N
-
-    txtWebUrl.setText(bundle.getString("AuthCRUDDialog.jTextField1.text")); // NOI18N
 
     lblDescription.setText(bundle.getString("AuthCRUDDialog.lblDescription.text")); // NOI18N
 
@@ -250,24 +336,34 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
   private void cmdSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSaveActionPerformed
     
     // validate if authentication is OK
-//    _instance = new Authentication();
-    _instance.setTitle(txtTitle.getText().trim());
-    _instance.setUsername(txtUserName.getText().trim());
-    _instance.setPassword(txtPassword.getText().trim());
-    _instance.setWeburl(txtWebUrl.getText().trim());
-    _instance.setDescription(txtDescription.getText().trim());
-    _instance.setCategory((Category)cmbCategory.getSelectedItem());
+//    instance = new Authentication();
+    //_instance.setTitle(txtTitle.getText().trim());
+//    instance.setUsername(txtUserName.getText().trim());
+//    instance.setPassword(txtPassword.getText().trim());
+//    instance.setWeburl(txtWebUrl.getText().trim());
+//    instance.setDescription(txtDescription.getText().trim());
+//    instance.setCategory((Category)cmbCategory.getSelectedItem());
     
-    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    Validator validator = factory.getValidator();
-    Set<ConstraintViolation<Authentication>> errors = validator.validate(_instance);
+//    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+//    Validator validator = factory.getValidator();
+//    Set<ConstraintViolation<Authentication>> errors = validator.validate(instance);
     
-    System.out.println(errors.size());
+//    System.out.println(errors.size());
     
-    for (ConstraintViolation<Authentication> error : errors) {
-      System.out.println(String.format("%s - %s", error.getPropertyPath().toString(), error.getMessage()));
-    }
-        
+//    for (ConstraintViolation<Authentication> error : errors) {
+//      System.out.println(String.format("%s - %s", error.getPropertyPath().toString(), error.getMessage()));
+//    }
+
+
+//    for (Map.Entry<String, Set<ConstraintViolation<Authentication>>> en : instance.getErrors().entrySet()) {
+//      String key = en.getKey();
+//      Set<ConstraintViolation<Authentication>> value = en.getValue();
+//      for (ConstraintViolation<Authentication> error : value) {
+//        System.out.println(String.format("%s - %s", error.getPropertyPath().toString(), error.getMessage()));
+//      }
+//    }
+//    
+
     switch (_mode) {
       case New:
         
