@@ -5,6 +5,7 @@
  */
 package com.ibh.safepassword.gui;
 
+import com.ibh.safepassword.dal.IBHDatabaseException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -23,7 +24,7 @@ public class LoginDialog extends javax.swing.JDialog {
   public LoginDialog(java.awt.Frame parent, boolean modal) {
     super(parent, modal);
     initComponents();
-    
+
     lblStatus.setText("");
     pack();
   }
@@ -170,50 +171,72 @@ public class LoginDialog extends javax.swing.JDialog {
   }// </editor-fold>//GEN-END:initComponents
 
   private void cmdLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdLoginActionPerformed
+    java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
 
     lblStatus.setText("");
     pack();
 
-    if (!((MainFrame)getParent()).getBL().Login(txtUserName.getText(), txtPwd.getPassword(), txtEncrPwd.getPassword())) {
-      java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
-      lblStatus.setText(bundle.getString("LoginDialog.lblStatus.text"));
+    try {
+      if (!((MainFrame) getParent()).getBL().Login(txtUserName.getText().trim(), txtPwd.getPassword(), txtEncrPwd.getPassword())) {
+        lblStatus.setText(bundle.getString("LoginDialog.lblStatus.text"));
+        pack();
+      } else {
+        this.dispose();
+      }
+    } catch (IBHDatabaseException dbe) {
+      lblStatus.setText(bundle.getString("LoginDialog.lblStatus.DBNOTAvailable"));
       pack();
     }
-    else {
-      this.dispose();
-    }
-      
   }//GEN-LAST:event_cmdLoginActionPerformed
 
   private void cmdNewDbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdNewDbActionPerformed
-    
-    lblStatus.setText("");
-    pack();
+    java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
 
-    if (!((MainFrame)getParent()).getBL().Create(txtUserName.getText(), txtPwd.getPassword(), txtEncrPwd.getPassword())) {
-      java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
-      lblStatus.setText(bundle.getString("LoginDialog.lblStatus.text"));
+    if (txtUserName.getText().trim().isEmpty()) {
+      lblStatus.setText(bundle.getString("LoginDialog.lblStatus.UserNameEmpty"));
       pack();
-    }
-    else {
-      this.dispose();
-    }
+    } else if (HasSpaceinEncrPwd()) {
+      lblStatus.setText(bundle.getString("LoginDialog.lblStatus.HasSpace"));
+      pack();
+    } else {
+      lblStatus.setText("");
+      pack();
 
+      try {
+        if (!((MainFrame) getParent()).getBL().Create(txtUserName.getText().trim(), txtPwd.getPassword(), txtEncrPwd.getPassword())) {
+          lblStatus.setText(bundle.getString("LoginDialog.lblStatus.text"));
+          pack();
+        } else {
+          this.dispose();
+        }
+      } catch (IBHDatabaseException dbe) {
+        lblStatus.setText(bundle.getString("LoginDialog.lblStatus.DBAvailable"));
+        pack();
+      }
+    }
   }//GEN-LAST:event_cmdNewDbActionPerformed
+
+  private Boolean HasSpaceinEncrPwd() {
+    for (char chr : txtEncrPwd.getPassword()) {
+      if (Character.isSpaceChar(chr)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
     this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-    if (((MainFrame)getParent()).getBL().getLoggedInName() == null) {
+    if (((MainFrame) getParent()).getBL().getLoggedInName() == null) {
       java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
 
-      if (JOptionPane.showConfirmDialog(this, 
-              bundle.getString("LoginDialog.CloseConfirmation.text"), 
-              bundle.getString("LoginDialog.CloseConfirmation.title"), 
-              JOptionPane.YES_NO_OPTION, 
+      if (JOptionPane.showConfirmDialog(this,
+              bundle.getString("LoginDialog.CloseConfirmation.text"),
+              bundle.getString("LoginDialog.CloseConfirmation.title"),
+              JOptionPane.YES_NO_OPTION,
               JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
         System.exit(0);
-      }
-      else {
+      } else {
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
       }
     }
@@ -227,8 +250,8 @@ public class LoginDialog extends javax.swing.JDialog {
     Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
     Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
     return bytes;
-}
-  
+  }
+
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton cmdLogin;
   private javax.swing.JButton cmdNewDb;
@@ -242,6 +265,5 @@ public class LoginDialog extends javax.swing.JDialog {
   private javax.swing.JPasswordField txtPwd;
   private javax.swing.JTextField txtUserName;
   // End of variables declaration//GEN-END:variables
-
 
 }

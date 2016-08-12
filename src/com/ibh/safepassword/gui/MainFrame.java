@@ -410,7 +410,15 @@ public class MainFrame extends javax.swing.JFrame {
 
   private void cmdNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdNewActionPerformed
     AuthCRUDDialog acrudd = new AuthCRUDDialog(this, true, CRUDEnum.New, bl, 0);
+    acrudd.addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosed(WindowEvent we) {
+        setTable();
+      }
+    
+    });
     acrudd.setVisible(true);
+    
   }//GEN-LAST:event_cmdNewActionPerformed
 
   private void cmdModActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdModActionPerformed
@@ -421,6 +429,13 @@ public class MainFrame extends javax.swing.JFrame {
         int id = Integer.parseInt(intvalue.toString());
 
         AuthCRUDDialog acrudd = new AuthCRUDDialog(this, true, CRUDEnum.Update, bl, id);
+        acrudd.addWindowListener(new WindowAdapter() {
+          @Override
+          public void windowClosed(WindowEvent we) {
+            setTable();
+          }
+
+        });
         acrudd.setVisible(true);
       }
     }
@@ -434,6 +449,13 @@ public class MainFrame extends javax.swing.JFrame {
         int id = Integer.parseInt(intvalue.toString());
 
         AuthCRUDDialog acrudd = new AuthCRUDDialog(this, true, CRUDEnum.Delete, bl, id);
+        acrudd.addWindowListener(new WindowAdapter() {
+          @Override
+          public void windowClosed(WindowEvent we) {
+            setTable();
+          }
+
+        });
         acrudd.setVisible(true);
       }
     }

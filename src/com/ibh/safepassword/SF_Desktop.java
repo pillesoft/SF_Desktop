@@ -5,12 +5,17 @@
  */
 package com.ibh.safepassword;
 
-import com.ibh.safepassword.bl.BusinessLogic;
-import com.ibh.safepassword.dal.Category;
 import com.ibh.safepassword.gui.MainFrame;
-
+import java.util.Collections;
 import java.util.List;
+
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+
+import java.util.logging.Logger;
+
+
 
 /**
  *
@@ -24,7 +29,7 @@ public class SF_Desktop {
   public static void main(String[] args) {
     
     System.out.println(Locale.getDefault());
-    
+
     /* Set the Nimbus look and feel */
     /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 

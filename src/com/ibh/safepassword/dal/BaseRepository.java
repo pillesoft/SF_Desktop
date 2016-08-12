@@ -6,7 +6,10 @@
 package com.ibh.safepassword.dal;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import javax.persistence.Query;
 import org.hibernate.Session;
 
@@ -27,7 +30,7 @@ public class BaseRepository<T> implements IRepository<T>  {
   
   
   @Override
-  public void Add(T obj) {
+  public T Add(T obj) {
     Session sess = DbContext.getSessionFactory().openSession();
     sess.beginTransaction();
     
@@ -35,6 +38,8 @@ public class BaseRepository<T> implements IRepository<T>  {
     
     sess.getTransaction().commit();
     sess.close();
+    
+    return obj;
   }
 
   @Override
@@ -79,6 +84,28 @@ public class BaseRepository<T> implements IRepository<T>  {
     sess.beginTransaction();
     
     Query q = sess.createQuery(queryexpr);
+    List ret = q.getResultList();
+    
+    sess.getTransaction().commit();
+    sess.close();
+    
+    return ret;
+    
+  }
+
+  @Override
+  public List GetList(String queryexpr, Map<String, Object> parameters) {
+    
+    Session sess = DbContext.getSessionFactory().openSession();
+    sess.beginTransaction();
+    
+    Query q = sess.createQuery(queryexpr);
+    for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+      String key = entry.getKey();
+      Object value = entry.getValue();
+      q.setParameter(key, value);
+    }
+      
     List ret = q.getResultList();
     
     sess.getTransaction().commit();

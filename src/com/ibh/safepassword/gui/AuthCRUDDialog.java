@@ -10,9 +10,7 @@ import com.ibh.safepassword.dal.Authentication;
 import com.ibh.safepassword.dal.Category;
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import javax.swing.DefaultComboBoxModel;
@@ -22,7 +20,8 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Binding;
 import org.jdesktop.beansbinding.BindingGroup;
 import org.jdesktop.beansbinding.Bindings;
-
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 /**
  *
  * @author ihorvath
@@ -35,13 +34,15 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
   private Authentication instance;
   private BindingGroup bindingGroup; 
   
+  private final Logger logger = LogManager.getLogger(AuthCRUDDialog.class.getName());
+  
   /**
    * Creates new form AuthCRUDDialog
    */
   public AuthCRUDDialog(java.awt.Frame parent, boolean modal, CRUDEnum mode, BusinessLogic bl, int id) {
     super(parent, modal);
     initComponents();
-    
+
     this._bl = bl;
     this._mode = mode;
 
@@ -52,17 +53,24 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
       case New:
         setTitle(bundle.getString("AuthCRUDDialog.title_new"));
         instance = new Authentication();
+        setPropChangeListener();
         instance.setId(id);
-        instance.setCategory(categlist.get(1));
+        instance.setTitle("");
+        instance.setUsername("");
+        if (!categlist.isEmpty()) {
+          instance.setCategory(categlist.get(0));
+        }
         break;
       case Update:
         setTitle(bundle.getString("AuthCRUDDialog.title_update"));
         instance = bl.getAuthRepos().GetbyId(id);
+        setPropChangeListener();
         break;
       case Delete:
         setTitle(bundle.getString("AuthCRUDDialog.title_delete"));
         cmdSave.setText(bundle.getString("AuthCRUDDialog.cmbSave.text_delete"));
         instance = bl.getAuthRepos().GetbyId(id);
+        setPropChangeListener();
         break;
     }
     
@@ -74,10 +82,17 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
     cmbCategory.setRenderer(new IBHCategoryComboRenderer());
     cmbCategory.setEditor(new IBHCategoryComboEditor());
     
+    this.pack();
+  }
+
+  private void setPropChangeListener() {
     setBindings();
 
     instance.addPropertyChangeListener((PropertyChangeEvent pce) -> {
       String propname = pce.getPropertyName();
+
+      logger.debug("most valtozott property " + propname);
+
       Binding b = bindingGroup.getBinding(propname);
       
       javax.swing.JComponent p = (javax.swing.JComponent)b.getTargetObject();
@@ -97,14 +112,11 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
         p.setBackground(Color.WHITE);
         p.setToolTipText(null);
       }
-      //System.out.println("most valtozott property");
       
       cmdSave.setEnabled(instance.getIsValid());
     });
-    
-    this.pack();
   }
-
+  
   private void setBindings() {
     bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
     
@@ -334,48 +346,25 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
   }// </editor-fold>//GEN-END:initComponents
 
   private void cmdSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSaveActionPerformed
-    
-    // validate if authentication is OK
-//    instance = new Authentication();
-    //_instance.setTitle(txtTitle.getText().trim());
-//    instance.setUsername(txtUserName.getText().trim());
-//    instance.setPassword(txtPassword.getText().trim());
-//    instance.setWeburl(txtWebUrl.getText().trim());
-//    instance.setDescription(txtDescription.getText().trim());
-//    instance.setCategory((Category)cmbCategory.getSelectedItem());
-    
-//    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-//    Validator validator = factory.getValidator();
-//    Set<ConstraintViolation<Authentication>> errors = validator.validate(instance);
-    
-//    System.out.println(errors.size());
-    
-//    for (ConstraintViolation<Authentication> error : errors) {
-//      System.out.println(String.format("%s - %s", error.getPropertyPath().toString(), error.getMessage()));
-//    }
 
-
-//    for (Map.Entry<String, Set<ConstraintViolation<Authentication>>> en : instance.getErrors().entrySet()) {
-//      String key = en.getKey();
-//      Set<ConstraintViolation<Authentication>> value = en.getValue();
-//      for (ConstraintViolation<Authentication> error : value) {
-//        System.out.println(String.format("%s - %s", error.getPropertyPath().toString(), error.getMessage()));
-//      }
-//    }
-//    
-
+    String categname = ((javax.swing.JTextField)((IBHCategoryComboEditor)cmbCategory.getEditor()).getEditorComponent()).getText();
+    Category realcateg = _bl.getCategRepos().AddorGet(categname);
+    instance.setCategory(realcateg);
+    
     switch (_mode) {
       case New:
-        
+        _bl.getAuthRepos().Add(instance);
         break;
       case Update:
-        
+        _bl.getAuthRepos().Update(instance);
         break;
       case Delete:
-        
+        _bl.getAuthRepos().Delete(instance);
         break;
       
     }
+    
+    this.dispose();
   }//GEN-LAST:event_cmdSaveActionPerformed
 
   private void cmdCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCancelActionPerformed

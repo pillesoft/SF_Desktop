@@ -6,8 +6,10 @@
 package com.ibh.safepassword.bl;
 
 import com.ibh.safepassword.dal.AuthenticationRepository;
+import com.ibh.safepassword.dal.Category;
 import com.ibh.safepassword.dal.CategoryRepository;
 import com.ibh.safepassword.dal.DbContext;
+import com.ibh.safepassword.dal.IBHDatabaseException;
 
 /**
  *
@@ -42,6 +44,9 @@ public class BusinessLogic {
       loggedInName = DbName;
       return true;
     }
+    catch (IBHDatabaseException dbe) {
+      throw dbe;
+    }
     catch (Exception e) {
       java.util.logging.Logger.getLogger(BusinessLogic.class.getName()).log(java.util.logging.Level.SEVERE, null, e);
       return false;
@@ -54,10 +59,22 @@ public class BusinessLogic {
       loggedInName = DbName;
       return true;
     }
+    catch (IBHDatabaseException dbe) {
+      throw dbe;
+    }
     catch (Exception e) {
       java.util.logging.Logger.getLogger(BusinessLogic.class.getName()).log(java.util.logging.Level.SEVERE, null, e);
       return false;
     }
+  }
+  
+  public Category AddIfNotExistCategory(Category categ) {
+    Category c = getCategRepos().GetbyId(categ.getId());
+    if (c == null) {
+      getCategRepos().Add(categ);
+      return categ;
+    }
+    return c;    
   }
   
 }

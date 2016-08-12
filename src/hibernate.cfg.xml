@@ -7,6 +7,8 @@
     <property name="hibernate.connection.url">jdbc:h2:tcp://localhost/~/test1</property>
     <property name="hibernate.connection.username">sa</property>
     <property name="hibernate.show_sql">true</property>
+    <property name="hibernate.session.events.log">false</property>
+    <property name="hibernate.generate_statistics">false</property>
     <!--    <property name="hibernate.hbm2ddl.auto">create</property>-->
     
     <mapping class="com.ibh.safepassword.dal.Category"/>
