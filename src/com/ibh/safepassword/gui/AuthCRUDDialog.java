@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.border.Border;
+import javax.swing.border.MatteBorder;
 import javax.validation.ConstraintViolation;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -46,7 +48,7 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
     this._bl = bl;
     this._mode = mode;
 
-    List<Category> categlist = _bl.getCategRepos().GetList();
+    List<String> categlist = _bl.getCategRepos().GetList("select c.name from Category c order by c.name");
     
     // settings depending on the mode
     switch (_mode) {
@@ -58,7 +60,7 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
         instance.setTitle("");
         instance.setUsername("");
         if (!categlist.isEmpty()) {
-          instance.setCategory(categlist.get(0));
+          instance.setCategname(categlist.get(0));
         }
         break;
       case Update:
@@ -74,13 +76,13 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
         break;
     }
     
-    Category[] categarray = categlist.toArray(new Category[0]);
+    String[] categarray = categlist.toArray(new String[0]);
 
-    DefaultComboBoxModel<Category> cbm = new DefaultComboBoxModel<>(categarray);
+    DefaultComboBoxModel<String> cbm = new DefaultComboBoxModel<>(categarray);
     cmbCategory.setModel(cbm);
 
-    cmbCategory.setRenderer(new IBHCategoryComboRenderer());
-    cmbCategory.setEditor(new IBHCategoryComboEditor());
+//    cmbCategory.setRenderer(new IBHCategoryComboRenderer());
+//    cmbCategory.setEditor(new IBHCategoryComboEditor());
     
     this.pack();
   }
@@ -96,17 +98,21 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
       Binding b = bindingGroup.getBinding(propname);
       
       javax.swing.JComponent p = (javax.swing.JComponent)b.getTargetObject();
+      logger.debug(p.getName());
       
       Set<ConstraintViolation<Authentication>> errors = instance.getErrors().get(propname);
       if (errors != null && errors.size() > 0) {
+        logger.debug("errors.size " + errors.size());
         String errmess = "";
         for (ConstraintViolation<Authentication> error : errors) {
           errmess += error.getMessage() + "\n";
         }
         
-        p.setBackground(Color.PINK);
+        //p.setBackground(Color.PINK);
         p.setToolTipText(errmess);
-        
+        Border origborder = p.getBorder();
+        Border border = new MatteBorder(2, 2, 2, 5, Color.RED);
+        p.setBorder(border);
       }
       else {
         p.setBackground(Color.WHITE);
@@ -133,10 +139,10 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
     binding = Bindings.createAutoBinding(
             AutoBinding.UpdateStrategy.READ_WRITE, 
             instance, 
-            BeanProperty.create("category"), 
+            BeanProperty.create("categname"), 
             cmbCategory, 
             BeanProperty.create("selectedItem"),
-            "category"
+            "categname"
     );
     bindingGroup.addBinding(binding);
 
@@ -347,7 +353,10 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
 
   private void cmdSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSaveActionPerformed
 
-    String categname = ((javax.swing.JTextField)((IBHCategoryComboEditor)cmbCategory.getEditor()).getEditorComponent()).getText();
+//    String categname = ((javax.swing.JTextField)((IBHCategoryComboEditor)cmbCategory.getEditor()).getEditorComponent()).getText();
+    String categname = (String)cmbCategory.getSelectedItem();
+    logger.debug("categname " + categname);
+    
     Category realcateg = _bl.getCategRepos().AddorGet(categname);
     instance.setCategory(realcateg);
     
@@ -373,7 +382,7 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
 
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
-  private javax.swing.JComboBox<Category> cmbCategory;
+  private javax.swing.JComboBox<String> cmbCategory;
   private javax.swing.JButton cmdCancel;
   private javax.swing.JButton cmdSave;
   private javax.swing.JPanel jPanel1;

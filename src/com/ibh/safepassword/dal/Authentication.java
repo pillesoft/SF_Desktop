@@ -5,6 +5,7 @@
  */
 package com.ibh.safepassword.dal;
 
+import com.ibh.safepassword.gui.AuthCRUDDialog;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
@@ -27,6 +28,8 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -36,6 +39,9 @@ import javax.validation.constraints.Size;
 @Table(name = "AUTHENTICATIONS")
 public class Authentication implements Serializable {
 
+  @Transient
+  private final Logger logger = LogManager.getLogger(Authentication.class.getName());
+  
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "ID", nullable = false)
@@ -64,6 +70,11 @@ public class Authentication implements Serializable {
   @NotNull
   private Category category;
 
+  @Transient
+  @NotNull
+  @Size(min = 5, max = 50)
+  private String categname;
+    
   @Transient
   private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
@@ -187,7 +198,29 @@ public class Authentication implements Serializable {
       errors.remove("category");
     }
     changeSupport.firePropertyChange("category", old, category);
+    
+    setCategname(category.getName());
   }
+
+  public String getCategname() {
+    return categname;
+  }
+
+  public void setCategname(String categname) {
+    logger.debug("setCategname " + categname);
+    
+    String old = this.categname;
+    this.categname = categname.trim();
+    Set<ConstraintViolation<Authentication>> err = validator.validateProperty(this, "categname");
+    logger.debug("err.size " + err.size());
+    if (err.size() > 0) {
+      errors.put("categname", err);
+    } else {
+      errors.remove("categname");
+    }
+    changeSupport.firePropertyChange("categname", old, categname);
+  }
+
 
   public Integer getId() {
     return id;

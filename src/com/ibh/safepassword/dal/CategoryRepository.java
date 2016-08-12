@@ -7,7 +7,7 @@ package com.ibh.safepassword.dal;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 /**
  *
@@ -26,5 +26,10 @@ public class CategoryRepository extends BaseRepository<Category> {
       c = (Category)l.get(0);
     }
     return c;
+  }
+  
+  public List<String> getCategoryName() {
+    List<String> l = GetList("select c.name from Category order by c.name");
+    return l;
   }
 }
