@@ -6,9 +6,11 @@
 package com.ibh.safepassword.dal;
 
 import com.ibh.safepassword.gui.AuthCRUDDialog;
+import com.oracle.webservices.internal.api.databinding.DatabindingMode;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
@@ -21,6 +23,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -65,15 +69,19 @@ public class Authentication implements Serializable {
   @Size(max = 500)
   private String description;
 
+  @Column(name = "VALIDFROM")
+  @Temporal(TemporalType.DATE)
+  private Date validfrom;
+
   @ManyToOne
   @JoinColumn(name = "CATEGORY_ID", nullable = false, foreignKey = @ForeignKey(name = "CATEGORY_ID_FK"))
   @NotNull
   private Category category;
 
-  @Transient
-  @NotNull
-  @Size(min = 5, max = 50)
-  private String categname;
+//  @Transient
+//  @NotNull
+//  @Size(min = 5, max = 50)
+//  private String categname;
     
   @Transient
   private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
@@ -184,6 +192,22 @@ public class Authentication implements Serializable {
     changeSupport.firePropertyChange("description", old, description);
   }
 
+  public Date getValidfrom() {
+    return validfrom;
+  }
+
+  public void setValidfrom(Date validfrom) {
+    Date old = this.validfrom;
+    this.validfrom = validfrom;
+    Set<ConstraintViolation<Authentication>> err = validator.validateProperty(this, "validfrom");
+    if (err.size() > 0) {
+      errors.put("validfrom", err);
+    } else {
+      errors.remove("validfrom");
+    }
+    changeSupport.firePropertyChange("validfrom", old, validfrom);
+  }
+  
   public Category getCategory() {
     return category;
   }
@@ -199,27 +223,33 @@ public class Authentication implements Serializable {
     }
     changeSupport.firePropertyChange("category", old, category);
     
-    setCategname(category.getName());
+//    setCategname(category.getName());
   }
 
-  public String getCategname() {
-    return categname;
-  }
-
-  public void setCategname(String categname) {
-    logger.debug("setCategname " + categname);
-    
-    String old = this.categname;
-    this.categname = categname.trim();
-    Set<ConstraintViolation<Authentication>> err = validator.validateProperty(this, "categname");
-    logger.debug("err.size " + err.size());
-    if (err.size() > 0) {
-      errors.put("categname", err);
-    } else {
-      errors.remove("categname");
-    }
-    changeSupport.firePropertyChange("categname", old, categname);
-  }
+//  public String getCategname() {
+////    return categname;
+//    if (getCategory() != null) {
+//      return getCategory().getName();
+//    }
+//    else {
+//      return "";
+//    }
+//  }
+//
+//  public void setCategname(String categname) {
+//    logger.debug("setCategname " + categname);
+//    
+//    String old = this.categname;
+//    this.categname = categname.trim();
+//    Set<ConstraintViolation<Authentication>> err = validator.validateProperty(this, "categname");
+//    logger.debug("err.size " + err.size());
+//    if (err.size() > 0) {
+//      errors.put("categname", err);
+//    } else {
+//      errors.remove("categname");
+//    }
+//    changeSupport.firePropertyChange("categname", old, categname);
+//  }
 
 
   public Integer getId() {

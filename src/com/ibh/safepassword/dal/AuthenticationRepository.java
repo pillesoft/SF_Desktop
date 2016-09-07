@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class AuthenticationRepository extends BaseRepository<Authentication> {
   public List GetAuthLimited(String filtertitle, String filtercateg) {
-    List ret = GetList("SELECT a.title, a.category.name, a.weburl, a.description, a.id FROM Authentication a");
+    List ret = GetList("SELECT a.title, a.category.name, a.weburl, a.validfrom, a.description, a.id FROM Authentication a");
     
     return ret;
   }

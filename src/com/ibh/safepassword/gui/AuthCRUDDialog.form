@@ -54,25 +54,27 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
+                  <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="lblDescription" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="lblWebUrl" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="lblPassword" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="lblUserName" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="lblCategory" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="lblTitle" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblValidFrom" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblDescription" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="txtWebUrl" alignment="0" max="32767" attributes="0"/>
                       <Component id="txtUserName" max="32767" attributes="0"/>
                       <Component id="txtTitle" alignment="0" max="32767" attributes="0"/>
                       <Component id="cmbCategory" alignment="0" max="32767" attributes="0"/>
                       <Component id="txtPassword" alignment="0" max="32767" attributes="0"/>
-                      <Component id="jScrollPane2" alignment="0" pref="322" max="32767" attributes="0"/>
+                      <Component id="jScrollPane2" alignment="0" pref="293" max="32767" attributes="0"/>
+                      <Component id="txtValidFrom" alignment="0" max="32767" attributes="0"/>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
+                  <EmptySpace min="-2" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -103,6 +105,11 @@
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="lblWebUrl" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="txtWebUrl" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="lblValidFrom" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtValidFrom" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -161,7 +168,7 @@
         <Component class="javax.swing.JLabel" name="lblWebUrl">
           <Properties>
             <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-              <ComponentRef name="lblWebUrl"/>
+              <ComponentRef name="txtWebUrl"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="com/ibh/safepassword/gui/Bundle.properties" key="AuthCRUDDialog.lblWebUrl.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
@@ -178,7 +185,7 @@
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;Category&gt;"/>
           </AuxValues>
         </Component>
         <Component class="javax.swing.JTextField" name="txtUserName">
@@ -210,6 +217,23 @@
             </Component>
           </SubComponents>
         </Container>
+        <Component class="javax.swing.JLabel" name="lblValidFrom">
+          <Properties>
+            <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+              <ComponentRef name="txtValidFrom"/>
+            </Property>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="com/ibh/safepassword/gui/Bundle.properties" key="AuthCRUDDialog.lblValidFrom.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JFormattedTextField" name="txtValidFrom">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="com/ibh/safepassword/gui/Bundle.properties" key="AuthCRUDDialog.txtValidFrom.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+        </Component>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPanel" name="jPanel2">

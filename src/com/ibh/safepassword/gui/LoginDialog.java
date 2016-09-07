@@ -203,7 +203,7 @@ public class LoginDialog extends javax.swing.JDialog {
       pack();
 
       try {
-        if (!((MainFrame) getParent()).getBL().Create(txtUserName.getText().trim(), txtPwd.getPassword(), txtEncrPwd.getPassword())) {
+        if (!((MainFrame) getParent()).getBL().CreateDB(txtUserName.getText().trim(), txtPwd.getPassword(), txtEncrPwd.getPassword())) {
           lblStatus.setText(bundle.getString("LoginDialog.lblStatus.text"));
           pack();
         } else {

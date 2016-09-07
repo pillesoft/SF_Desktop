@@ -9,11 +9,17 @@ import com.ibh.safepassword.bl.BusinessLogic;
 import com.ibh.safepassword.dal.Authentication;
 import com.ibh.safepassword.dal.Category;
 import java.awt.Color;
+import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.Vector;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JLabel;
 import javax.swing.border.Border;
 import javax.swing.border.MatteBorder;
 import javax.validation.ConstraintViolation;
@@ -48,7 +54,8 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
     this._bl = bl;
     this._mode = mode;
 
-    List<String> categlist = _bl.getCategRepos().GetList("select c.name from Category c order by c.name");
+//    List<String> categlist = _bl.getCategRepos().GetList("select c.name from Category c order by c.name");
+    List<Category> categlist = _bl.getCategRepos().GetList();
     
     // settings depending on the mode
     switch (_mode) {
@@ -59,9 +66,11 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
         instance.setId(id);
         instance.setTitle("");
         instance.setUsername("");
-        if (!categlist.isEmpty()) {
-          instance.setCategname(categlist.get(0));
-        }
+        Date validfrom = Calendar.getInstance().getTime();
+        instance.setValidfrom(validfrom);
+//        if (!categlist.isEmpty()) {
+//          instance.setCategname(categlist.get(0));
+//        }
         break;
       case Update:
         setTitle(bundle.getString("AuthCRUDDialog.title_update"));
@@ -76,13 +85,22 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
         break;
     }
     
-    String[] categarray = categlist.toArray(new String[0]);
-
-    DefaultComboBoxModel<String> cbm = new DefaultComboBoxModel<>(categarray);
+//    String[] categarray = categlist.toArray(new String[0]);
+//    DefaultComboBoxModel<String> cbm;
+    Category[] categarray = categlist.toArray(new Category[0]);
+    DefaultComboBoxModel<Category> cbm;
+    if (categarray.length > 0) {
+      cbm = new DefaultComboBoxModel<>(categarray);
+    }
+    else {
+      Vector categv = new Vector();
+      categv.add(new Category(""));
+      cbm = new DefaultComboBoxModel<>(categv);
+    }
     cmbCategory.setModel(cbm);
 
-//    cmbCategory.setRenderer(new IBHCategoryComboRenderer());
-//    cmbCategory.setEditor(new IBHCategoryComboEditor());
+    cmbCategory.setRenderer(new IBHCategoryComboRenderer());
+    cmbCategory.setEditor(new IBHCategoryComboEditor());
     
     this.pack();
   }
@@ -109,17 +127,29 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
         }
         
         //p.setBackground(Color.PINK);
+
         p.setToolTipText(errmess);
-        Border origborder = p.getBorder();
-        Border border = new MatteBorder(2, 2, 2, 5, Color.RED);
-        p.setBorder(border);
+        JLabel l = (JLabel)p.getClientProperty("labeledBy");
+        l.setForeground(Color.RED);
+        
+//        logger.debug(p.getBorder());
+//        if(p.getClientProperty("origborder") == null) {
+//          p.putClientProperty("origborder", p.getBorder());
+//        }
+//        Border border = BorderFactory.createMatteBorder(2, 2, 2, 5, Color.RED);
+//        p.setBorder(border);
       }
       else {
-        p.setBackground(Color.WHITE);
+//        p.setBackground(Color.WHITE);
+//        p.setBorder(null);
+//        p.setBorder((Border)p.getClientProperty("origborder"));
+        JLabel l = (JLabel)p.getClientProperty("labeledBy");
+        l.setForeground(Color.BLACK);
         p.setToolTipText(null);
       }
       
       cmdSave.setEnabled(instance.getIsValid());
+      //this.pack();
     });
   }
   
@@ -139,10 +169,10 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
     binding = Bindings.createAutoBinding(
             AutoBinding.UpdateStrategy.READ_WRITE, 
             instance, 
-            BeanProperty.create("categname"), 
+            BeanProperty.create("category"), 
             cmbCategory, 
             BeanProperty.create("selectedItem"),
-            "categname"
+            "category"
     );
     bindingGroup.addBinding(binding);
 
@@ -186,6 +216,16 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
     );
     bindingGroup.addBinding(binding);
 
+    binding = Bindings.createAutoBinding(
+            AutoBinding.UpdateStrategy.READ_WRITE, 
+            instance, 
+            BeanProperty.create("validfrom"), 
+            txtValidFrom, 
+            BeanProperty.create("value"),
+            "validfrom"
+    );
+    bindingGroup.addBinding(binding);
+
     bindingGroup.bind();
   }
   
@@ -218,6 +258,8 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
     lblDescription = new javax.swing.JLabel();
     jScrollPane2 = new javax.swing.JScrollPane();
     txtDescription = new javax.swing.JTextArea();
+    lblValidFrom = new javax.swing.JLabel();
+    txtValidFrom = new javax.swing.JFormattedTextField();
     jPanel2 = new javax.swing.JPanel();
     cmdSave = new javax.swing.JButton();
     cmdCancel = new javax.swing.JButton();
@@ -242,7 +284,7 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
     lblPassword.setLabelFor(txtPassword);
     lblPassword.setText(bundle.getString("AuthCRUDDialog.lblPassword.text")); // NOI18N
 
-    lblWebUrl.setLabelFor(lblWebUrl);
+    lblWebUrl.setLabelFor(txtWebUrl);
     lblWebUrl.setText(bundle.getString("AuthCRUDDialog.lblWebUrl.text")); // NOI18N
 
     cmbCategory.setEditable(true);
@@ -254,6 +296,11 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
     txtDescription.setTabSize(4);
     jScrollPane2.setViewportView(txtDescription);
 
+    lblValidFrom.setLabelFor(txtValidFrom);
+    lblValidFrom.setText(bundle.getString("AuthCRUDDialog.lblValidFrom.text")); // NOI18N
+
+    txtValidFrom.setText(bundle.getString("AuthCRUDDialog.txtValidFrom.text")); // NOI18N
+
     javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
     jPanel1.setLayout(jPanel1Layout);
     jPanel1Layout.setHorizontalGroup(
@@ -261,20 +308,22 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
       .addGroup(jPanel1Layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(lblDescription)
           .addComponent(lblWebUrl)
           .addComponent(lblPassword)
           .addComponent(lblUserName)
           .addComponent(lblCategory)
-          .addComponent(lblTitle))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+          .addComponent(lblTitle)
+          .addComponent(lblValidFrom)
+          .addComponent(lblDescription))
+        .addGap(39, 39, 39)
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(txtWebUrl)
           .addComponent(txtUserName)
           .addComponent(txtTitle)
           .addComponent(cmbCategory, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addComponent(txtPassword)
-          .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE))
+          .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
+          .addComponent(txtValidFrom))
         .addContainerGap())
     );
     jPanel1Layout.setVerticalGroup(
@@ -300,6 +349,10 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(lblWebUrl)
           .addComponent(txtWebUrl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(lblValidFrom)
+          .addComponent(txtValidFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addGroup(jPanel1Layout.createSequentialGroup()
@@ -353,9 +406,10 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
 
   private void cmdSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSaveActionPerformed
 
-//    String categname = ((javax.swing.JTextField)((IBHCategoryComboEditor)cmbCategory.getEditor()).getEditorComponent()).getText();
-    String categname = (String)cmbCategory.getSelectedItem();
+    String categname = ((javax.swing.JTextField)((IBHCategoryComboEditor)cmbCategory.getEditor()).getEditorComponent()).getText();
+//    String categname = (String)cmbCategory.getSelectedItem();
     logger.debug("categname " + categname);
+//    instance.setCategname(categname);
     
     Category realcateg = _bl.getCategRepos().AddorGet(categname);
     instance.setCategory(realcateg);
@@ -382,7 +436,7 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
 
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
-  private javax.swing.JComboBox<String> cmbCategory;
+  private javax.swing.JComboBox<Category> cmbCategory;
   private javax.swing.JButton cmdCancel;
   private javax.swing.JButton cmdSave;
   private javax.swing.JPanel jPanel1;
@@ -395,11 +449,13 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
   private javax.swing.JLabel lblPassword;
   private javax.swing.JLabel lblTitle;
   private javax.swing.JLabel lblUserName;
+  private javax.swing.JLabel lblValidFrom;
   private javax.swing.JLabel lblWebUrl;
   private javax.swing.JTextArea txtDescription;
   private javax.swing.JTextField txtPassword;
   private javax.swing.JTextField txtTitle;
   private javax.swing.JTextField txtUserName;
+  private javax.swing.JFormattedTextField txtValidFrom;
   private javax.swing.JTextField txtWebUrl;
   // End of variables declaration//GEN-END:variables
 }

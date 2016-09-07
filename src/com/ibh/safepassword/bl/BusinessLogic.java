@@ -53,7 +53,7 @@ public class BusinessLogic {
     }
   }
 
-  public boolean Create(String DbName, char[] pwd, char[] encrpwd) {
+  public boolean CreateDB(String DbName, char[] pwd, char[] encrpwd) {
     try {
       DbContext.CreateDatabase(DbName, pwd, encrpwd);
       loggedInName = DbName;

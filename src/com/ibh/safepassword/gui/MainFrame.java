@@ -40,6 +40,8 @@ public class MainFrame extends javax.swing.JFrame {
   private final int _AuthInfoDialogShowTime = 10;
   private int _AuthInfoDialogShowTimeCounter;
   private final ResourceBundle _bundle;
+  private final int _FieldPosId = 5;
+  private final int _FieldPosDescription = 4;
 
   /**
    * Creates new form MainFrame
@@ -114,6 +116,7 @@ public class MainFrame extends javax.swing.JFrame {
       _bundle.getString("MainFrame.tblData.ColTitle.text"),
       _bundle.getString("MainFrame.tblData.ColCategory.text"),
       _bundle.getString("MainFrame.tblData.ColWebUrl.text"),
+      _bundle.getString("MainFrame.tblData.ColValidFrom.text"),
       "Description",
       "ID"};
 
@@ -123,8 +126,8 @@ public class MainFrame extends javax.swing.JFrame {
     tblData.setModel(dtm);
     tblData.setRowSorter(sorter);
 
-    tblData.removeColumn(tblData.getColumnModel().getColumn(4));
-    tblData.removeColumn(tblData.getColumnModel().getColumn(3));
+    tblData.removeColumn(tblData.getColumnModel().getColumn(_FieldPosId));
+    tblData.removeColumn(tblData.getColumnModel().getColumn(_FieldPosDescription));
 
     tblData.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
       @Override
@@ -132,7 +135,7 @@ public class MainFrame extends javax.swing.JFrame {
         int selrow = tblData.getSelectedRow();
         txtDescription.setText("");
         if (selrow > -1) {
-          Object descvalue = tblData.getModel().getValueAt(selrow, 3);
+          Object descvalue = tblData.getModel().getValueAt(selrow, _FieldPosDescription);
           if (descvalue != null) {
             txtDescription.setText(descvalue.toString());
           }
@@ -344,67 +347,76 @@ public class MainFrame extends javax.swing.JFrame {
     setTable();
   }//GEN-LAST:event_cmdClearFilterActionPerformed
 
-  private void cmdShowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdShowActionPerformed
+  private int getSelectedRowID() {
     int selrow = tblData.getSelectedRow();
+    int id = 0;
     if (selrow > -1) {
-      Object intvalue = tblData.getModel().getValueAt(selrow, 4);
+      Object intvalue = tblData.getModel().getValueAt(selrow, _FieldPosId);
       if (intvalue != null) {
-        int id = Integer.parseInt(intvalue.toString());
-
-        AuthInfoDialog aid = new AuthInfoDialog(this, true, bl, id, _AuthInfoDialogShowTime);
-
-        Timer timer = new Timer(1000, new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent ae) {
-            if (((Timer) ae.getSource()).isRepeats()) {
-              _AuthInfoDialogShowTimeCounter--;
-              aid.cmdClose.setText(String.format("%s (%s)", _bundle.getString("AuthInfoDialog.cmdClose.text"), _AuthInfoDialogShowTimeCounter));
-//      System.out.println(secstoshow);
-            }
-
-            if (_AuthInfoDialogShowTimeCounter == 0) {
-              ((Timer) ae.getSource()).setRepeats(false);
-              aid.setVisible(false);
-              aid.dispose();
-            }
-          }
-        });
-        //AuthInfoTimer timer = new AuthInfoTimer(1000, AuthInfoTimer, aid, secstoshow);
-
-        aid.addWindowListener(new WindowAdapter() {
-          @Override
-          public void windowClosed(WindowEvent e) {
-            // needs to clear the clipboard
-            try {
-              Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
-
-              clpbrd.setContents(new Transferable() {
-                @Override
-                public DataFlavor[] getTransferDataFlavors() {
-                  return new DataFlavor[0];
-                }
-
-                @Override
-                public boolean isDataFlavorSupported(DataFlavor flavor) {
-                  return false;
-                }
-
-                @Override
-                public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
-                  throw new UnsupportedFlavorException(flavor);
-                }
-              }, null);
-            } catch (IllegalStateException ise) {
-            }
-          }
-
-        }
-        );
-
-        timer.start();
-
-        aid.setVisible(true);
+        id = Integer.parseInt(intvalue.toString());
       }
+    }
+    return id;
+  }
+
+  private void cmdShowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdShowActionPerformed
+
+    int id = getSelectedRowID();
+    if (id != 0) {
+      _AuthInfoDialogShowTimeCounter = _AuthInfoDialogShowTime;
+      AuthInfoDialog aid = new AuthInfoDialog(this, true, bl, id, _AuthInfoDialogShowTime);
+
+      Timer timer = new Timer(1000, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+          if (((Timer) ae.getSource()).isRepeats()) {
+            _AuthInfoDialogShowTimeCounter--;
+            aid.cmdClose.setText(String.format("%s (%s)", _bundle.getString("AuthInfoDialog.cmdClose.text"), _AuthInfoDialogShowTimeCounter));
+//      System.out.println(secstoshow);
+          }
+
+          if (_AuthInfoDialogShowTimeCounter <= 0) {
+            ((Timer) ae.getSource()).setRepeats(false);
+            aid.setVisible(false);
+            aid.dispose();
+          }
+        }
+      });
+      //AuthInfoTimer timer = new AuthInfoTimer(1000, AuthInfoTimer, aid, secstoshow);
+
+      aid.addWindowListener(new WindowAdapter() {
+        @Override
+        public void windowClosed(WindowEvent e) {
+          // needs to clear the clipboard
+          try {
+            Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
+
+            clpbrd.setContents(new Transferable() {
+              @Override
+              public DataFlavor[] getTransferDataFlavors() {
+                return new DataFlavor[0];
+              }
+
+              @Override
+              public boolean isDataFlavorSupported(DataFlavor flavor) {
+                return false;
+              }
+
+              @Override
+              public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
+                throw new UnsupportedFlavorException(flavor);
+              }
+            }, null);
+          } catch (IllegalStateException ise) {
+          }
+        }
+
+      }
+      );
+
+      timer.start();
+
+      aid.setVisible(true);
     }
   }//GEN-LAST:event_cmdShowActionPerformed
 
@@ -415,49 +427,41 @@ public class MainFrame extends javax.swing.JFrame {
       public void windowClosed(WindowEvent we) {
         setTable();
       }
-    
+
     });
     acrudd.setVisible(true);
-    
+
   }//GEN-LAST:event_cmdNewActionPerformed
 
   private void cmdModActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdModActionPerformed
-    int selrow = tblData.getSelectedRow();
-    if (selrow > -1) {
-      Object intvalue = tblData.getModel().getValueAt(selrow, 4);
-      if (intvalue != null) {
-        int id = Integer.parseInt(intvalue.toString());
+    int id = getSelectedRowID();
+    if (id != 0) {
 
-        AuthCRUDDialog acrudd = new AuthCRUDDialog(this, true, CRUDEnum.Update, bl, id);
-        acrudd.addWindowListener(new WindowAdapter() {
-          @Override
-          public void windowClosed(WindowEvent we) {
-            setTable();
-          }
+      AuthCRUDDialog acrudd = new AuthCRUDDialog(this, true, CRUDEnum.Update, bl, id);
+      acrudd.addWindowListener(new WindowAdapter() {
+        @Override
+        public void windowClosed(WindowEvent we) {
+          setTable();
+        }
 
-        });
-        acrudd.setVisible(true);
-      }
+      });
+      acrudd.setVisible(true);
     }
   }//GEN-LAST:event_cmdModActionPerformed
 
   private void cmdDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdDelActionPerformed
-    int selrow = tblData.getSelectedRow();
-    if (selrow > -1) {
-      Object intvalue = tblData.getModel().getValueAt(selrow, 4);
-      if (intvalue != null) {
-        int id = Integer.parseInt(intvalue.toString());
+    int id = getSelectedRowID();
+    if (id != 0) {
 
-        AuthCRUDDialog acrudd = new AuthCRUDDialog(this, true, CRUDEnum.Delete, bl, id);
-        acrudd.addWindowListener(new WindowAdapter() {
-          @Override
-          public void windowClosed(WindowEvent we) {
-            setTable();
-          }
+      AuthCRUDDialog acrudd = new AuthCRUDDialog(this, true, CRUDEnum.Delete, bl, id);
+      acrudd.addWindowListener(new WindowAdapter() {
+        @Override
+        public void windowClosed(WindowEvent we) {
+          setTable();
+        }
 
-        });
-        acrudd.setVisible(true);
-      }
+      });
+      acrudd.setVisible(true);
     }
   }//GEN-LAST:event_cmdDelActionPerformed
 
