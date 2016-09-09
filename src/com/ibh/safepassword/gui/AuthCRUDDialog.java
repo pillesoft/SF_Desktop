@@ -8,6 +8,7 @@ package com.ibh.safepassword.gui;
 import com.ibh.safepassword.bl.BusinessLogic;
 import com.ibh.safepassword.dal.Authentication;
 import com.ibh.safepassword.dal.Category;
+import com.ibh.safepassword.dal.IBHDbConstraintException;
 import java.awt.Color;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
@@ -19,7 +20,9 @@ import java.util.Set;
 import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.border.Border;
 import javax.swing.border.MatteBorder;
 import javax.validation.ConstraintViolation;
@@ -30,6 +33,7 @@ import org.jdesktop.beansbinding.BindingGroup;
 import org.jdesktop.beansbinding.Bindings;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+
 /**
  *
  * @author ihorvath
@@ -40,10 +44,10 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
   private final CRUDEnum _mode;
   private final ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
   private Authentication instance;
-  private BindingGroup bindingGroup; 
-  
+  private BindingGroup bindingGroup;
+
   private final Logger logger = LogManager.getLogger(AuthCRUDDialog.class.getName());
-  
+
   /**
    * Creates new form AuthCRUDDialog
    */
@@ -56,7 +60,7 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
 
 //    List<String> categlist = _bl.getCategRepos().GetList("select c.name from Category c order by c.name");
     List<Category> categlist = _bl.getCategRepos().GetList();
-    
+
     // settings depending on the mode
     switch (_mode) {
       case New:
@@ -84,15 +88,14 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
         setPropChangeListener();
         break;
     }
-    
+
 //    String[] categarray = categlist.toArray(new String[0]);
 //    DefaultComboBoxModel<String> cbm;
     Category[] categarray = categlist.toArray(new Category[0]);
     DefaultComboBoxModel<Category> cbm;
     if (categarray.length > 0) {
       cbm = new DefaultComboBoxModel<>(categarray);
-    }
-    else {
+    } else {
       Vector categv = new Vector();
       categv.add(new Category(""));
       cbm = new DefaultComboBoxModel<>(categv);
@@ -101,7 +104,7 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
 
     cmbCategory.setRenderer(new IBHCategoryComboRenderer());
     cmbCategory.setEditor(new IBHCategoryComboEditor());
-    
+
     this.pack();
   }
 
@@ -113,11 +116,9 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
 
       logger.debug("most valtozott property " + propname);
 
-      Binding b = bindingGroup.getBinding(propname);
-      
-      javax.swing.JComponent p = (javax.swing.JComponent)b.getTargetObject();
+      javax.swing.JComponent p = getComponent(propname);
       logger.debug(p.getName());
-      
+
       Set<ConstraintViolation<Authentication>> errors = instance.getErrors().get(propname);
       if (errors != null && errors.size() > 0) {
         logger.debug("errors.size " + errors.size());
@@ -125,102 +126,113 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
         for (ConstraintViolation<Authentication> error : errors) {
           errmess += error.getMessage() + "\n";
         }
-        
-        //p.setBackground(Color.PINK);
 
-        p.setToolTipText(errmess);
-        JLabel l = (JLabel)p.getClientProperty("labeledBy");
-        l.setForeground(Color.RED);
-        
+        setError(p, errmess);
+        //p.setBackground(Color.PINK);
 //        logger.debug(p.getBorder());
 //        if(p.getClientProperty("origborder") == null) {
 //          p.putClientProperty("origborder", p.getBorder());
 //        }
 //        Border border = BorderFactory.createMatteBorder(2, 2, 2, 5, Color.RED);
 //        p.setBorder(border);
-      }
-      else {
+      } else {
 //        p.setBackground(Color.WHITE);
 //        p.setBorder(null);
 //        p.setBorder((Border)p.getClientProperty("origborder"));
-        JLabel l = (JLabel)p.getClientProperty("labeledBy");
-        l.setForeground(Color.BLACK);
-        p.setToolTipText(null);
+        clearError(p);
       }
-      
+
       cmdSave.setEnabled(instance.getIsValid());
       //this.pack();
     });
   }
+
+  private JComponent getComponent(String propname) {
+    Binding b = bindingGroup.getBinding(propname);
+    javax.swing.JComponent p = (javax.swing.JComponent) b.getTargetObject();
+    return p;
+  }
+
+  private void setError(JComponent comp, String errmess) {
+    comp.setToolTipText(errmess);
+    JLabel l = (JLabel) comp.getClientProperty("labeledBy");
+    l.setForeground(Color.RED);
+  }
+
+  private void clearError(JComponent comp) {
+    JLabel l = (JLabel)comp.getClientProperty("labeledBy");
+    l.setForeground(Color.BLACK);
+    comp.setToolTipText(null);
+  }
   
   private void setBindings() {
     bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
-    
+
     Binding binding = Bindings.createAutoBinding(
-            AutoBinding.UpdateStrategy.READ_WRITE, 
-            instance, 
+            AutoBinding.UpdateStrategy.READ_WRITE,
+            instance,
             BeanProperty.create("title"),
-            txtTitle, 
+            txtTitle,
             BeanProperty.create("text"),
             "title"
     );
     bindingGroup.addBinding(binding);
 
     binding = Bindings.createAutoBinding(
-            AutoBinding.UpdateStrategy.READ_WRITE, 
-            instance, 
-            BeanProperty.create("category"), 
-            cmbCategory, 
+            AutoBinding.UpdateStrategy.READ_WRITE,
+            instance,
+            BeanProperty.create("category"),
+            cmbCategory,
             BeanProperty.create("selectedItem"),
             "category"
     );
     bindingGroup.addBinding(binding);
 
     binding = Bindings.createAutoBinding(
-            AutoBinding.UpdateStrategy.READ_WRITE, 
-            instance, 
-            BeanProperty.create("username"), 
-            txtUserName, 
+            AutoBinding.UpdateStrategy.READ_WRITE,
+            instance,
+            BeanProperty.create("username"),
+            txtUserName,
             BeanProperty.create("text"),
             "username"
     );
     bindingGroup.addBinding(binding);
 
     binding = Bindings.createAutoBinding(
-            AutoBinding.UpdateStrategy.READ_WRITE, 
-            instance, 
-            BeanProperty.create("password"), 
-            txtPassword, 
+            AutoBinding.UpdateStrategy.READ_WRITE,
+            instance,
+            BeanProperty.create("password"),
+            txtPassword,
             BeanProperty.create("text"),
             "password"
     );
     bindingGroup.addBinding(binding);
 
     binding = Bindings.createAutoBinding(
-            AutoBinding.UpdateStrategy.READ_WRITE, 
-            instance, 
-            BeanProperty.create("weburl"), 
-            txtWebUrl, 
+            AutoBinding.UpdateStrategy.READ_WRITE,
+            instance,
+            BeanProperty.create("weburl"),
+            txtWebUrl,
             BeanProperty.create("text"),
             "weburl"
     );
     bindingGroup.addBinding(binding);
 
     binding = Bindings.createAutoBinding(
-            AutoBinding.UpdateStrategy.READ_WRITE, 
-            instance, 
-            BeanProperty.create("description"), 
-            txtDescription, 
+            AutoBinding.UpdateStrategy.READ_WRITE,
+            instance,
+            BeanProperty.create("description"),
+            txtDescription,
             BeanProperty.create("text"),
             "description"
     );
     bindingGroup.addBinding(binding);
 
     binding = Bindings.createAutoBinding(
-            AutoBinding.UpdateStrategy.READ_WRITE, 
-            instance, 
-            BeanProperty.create("validfrom"), 
-            txtValidFrom, 
+            AutoBinding.UpdateStrategy.READ_WRITE,
+            instance,
+            BeanProperty.create("validfrom"),
+            txtValidFrom,
             BeanProperty.create("value"),
             "validfrom"
     );
@@ -228,11 +240,11 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
 
     bindingGroup.bind();
   }
-  
+
   public Authentication getInstance() {
     return instance;
   }
-  
+
   /**
    * This method is called from within the constructor to initialize the form.
    * WARNING: Do NOT modify this code. The content of this method is always
@@ -406,28 +418,38 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
 
   private void cmdSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSaveActionPerformed
 
-    String categname = ((javax.swing.JTextField)((IBHCategoryComboEditor)cmbCategory.getEditor()).getEditorComponent()).getText();
+    String categname = ((javax.swing.JTextField) ((IBHCategoryComboEditor) cmbCategory.getEditor()).getEditorComponent()).getText();
 //    String categname = (String)cmbCategory.getSelectedItem();
     logger.debug("categname " + categname);
 //    instance.setCategname(categname);
-    
-    Category realcateg = _bl.getCategRepos().AddorGet(categname);
-    instance.setCategory(realcateg);
-    
-    switch (_mode) {
-      case New:
-        _bl.getAuthRepos().Add(instance);
-        break;
-      case Update:
-        _bl.getAuthRepos().Update(instance);
-        break;
-      case Delete:
-        _bl.getAuthRepos().Delete(instance);
-        break;
+
+    try {
+      Category realcateg = _bl.getCategRepos().AddorGet(categname);
+      instance.setCategory(realcateg);
+
+      switch (_mode) {
+        case New:
+          _bl.getAuthRepos().Add(instance);
+          break;
+        case Update:
+          _bl.getAuthRepos().Update(instance);
+          break;
+        case Delete:
+          _bl.getAuthRepos().Delete(instance);
+          break;
+
+      }
+      this.dispose();
+
+    } catch (IBHDbConstraintException constrexc) {
+      JComponent comp = getComponent(constrexc.getFieldName().toLowerCase());
+      JLabel l = (JLabel)comp.getClientProperty("labeledBy");
       
+      String text = String.format(bundle.getString("AuthUniqueConstraint"), l.getText());
+      JOptionPane.showMessageDialog(this, text, "Save Error", JOptionPane.ERROR_MESSAGE);
+
     }
-    
-    this.dispose();
+
   }//GEN-LAST:event_cmdSaveActionPerformed
 
   private void cmdCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCancelActionPerformed

@@ -28,8 +28,8 @@ public class CategoryRepository extends BaseRepository<Category> {
     return c;
   }
   
-  public List<String> getCategoryName() {
-    List<String> l = GetList("select c.name from Category order by c.name");
-    return l;
-  }
+//  public List<String> getCategoryName() {
+//    List<String> l = GetList("select c.name from Category order by c.name");
+//    return l;
+//  }
 }

@@ -6,6 +6,8 @@
 package com.ibh.safepassword.dal;
 
 import java.util.List;
+import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 
 /**
  *
@@ -23,4 +25,31 @@ public class AuthenticationRepository extends BaseRepository<Authentication> {
     AuthInfo ret = new AuthInfo(a.getId(), a.getUsername(), a.getPassword(), a.getTitle());
     return ret;
   }
+
+  @Override
+  public void Update(Authentication obj) throws IBHDbConstraintException {
+    Authentication old = GetbyId(obj.getId());
+    boolean pwdchanged = false;
+    if (!old.getPassword().equals(obj.getPassword())) {
+      pwdchanged = true;
+    }
+    Session sess = DbContext.getSessionFactory().openSession();
+    sess.beginTransaction();
+    try {
+      if (pwdchanged) {
+        // make pwdchnaged
+        AuthPwdHistory hist = new AuthPwdHistory(obj, old.getPassword());
+        sess.save(hist);
+      }
+      sess.merge(obj);
+      sess.getTransaction().commit();
+    } catch (ConstraintViolationException exc) {
+      throw parseConstraintExc(exc);
+    } finally {
+      sess.close();
+    }
+  }
+  
+  
+          
 }

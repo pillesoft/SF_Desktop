@@ -13,5 +13,6 @@
     
     <mapping class="com.ibh.safepassword.dal.Category"/>
     <mapping class="com.ibh.safepassword.dal.Authentication"/>
+    <mapping class="com.ibh.safepassword.dal.AuthPwdHistory"/>
   </session-factory>
 </hibernate-configuration>
