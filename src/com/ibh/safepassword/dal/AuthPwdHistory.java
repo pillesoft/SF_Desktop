@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -20,6 +21,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  *
@@ -34,8 +37,9 @@ public class AuthPwdHistory  implements Serializable {
   @Column(name = "ID", nullable = false)
   private Integer id;
 
-  @ManyToOne
+  @ManyToOne()
   @JoinColumn(name = "AUTHENTICATIONS_ID", nullable = false, foreignKey = @ForeignKey(name = "AUTHENTICATION_ID_FK"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private final Authentication authentication;
   
   @Column(name = "PASSWORD", length = 100)

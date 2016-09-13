@@ -441,13 +441,18 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
       }
       this.dispose();
 
-    } catch (IBHDbConstraintException constrexc) {
+    }
+    catch (IBHDbConstraintException constrexc) {
       JComponent comp = getComponent(constrexc.getFieldName().toLowerCase());
       JLabel l = (JLabel)comp.getClientProperty("labeledBy");
       
       String text = String.format(bundle.getString("AuthUniqueConstraint"), l.getText());
       JOptionPane.showMessageDialog(this, text, "Save Error", JOptionPane.ERROR_MESSAGE);
 
+    }
+    catch(Exception exc) {
+      logger.fatal("Unexpected Error", exc);
+      JOptionPane.showMessageDialog(this, "Unexpected Error Occured. Check the Log", "Save Error", JOptionPane.ERROR_MESSAGE);
     }
 
   }//GEN-LAST:event_cmdSaveActionPerformed

@@ -6,6 +6,7 @@
 package com.ibh.safepassword.bl;
 
 import com.ibh.safepassword.dal.AuthPwdHistory;
+import com.ibh.safepassword.dal.AuthPwdHistoryRepository;
 import com.ibh.safepassword.dal.AuthenticationRepository;
 import com.ibh.safepassword.dal.BaseRepository;
 import com.ibh.safepassword.dal.Category;
@@ -21,13 +22,13 @@ public class BusinessLogic {
 
   private final CategoryRepository categRepos;
   private final AuthenticationRepository authRepos;
-  private final BaseRepository<AuthPwdHistory> authHistRepos;
+  private final AuthPwdHistoryRepository authHistRepos;
   private String loggedInName;
   
   public BusinessLogic() {
     categRepos = new CategoryRepository();
     authRepos = new AuthenticationRepository();
-    authHistRepos = new BaseRepository<>();
+    authHistRepos = new AuthPwdHistoryRepository();
   }
 
   public CategoryRepository getCategRepos() {
@@ -38,7 +39,7 @@ public class BusinessLogic {
     return authRepos;
   }
 
-  public BaseRepository<AuthPwdHistory> getAuthHistRepos() {
+  public AuthPwdHistoryRepository getAuthHistRepos() {
     return authHistRepos;
   }
   
