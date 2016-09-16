@@ -50,6 +50,8 @@ public class DbContext {
     }
     Map sett = new HashMap<String, String>();
     sett.put("hibernate.show_sql", "false");
+    sett.put("hibernate.session.events.log", "false");
+    sett.put("hibernate.generate_statistics", "false");
     sett.put("hibernate.connection.url", String.format("jdbc:h2:%s;IFEXISTS=TRUE;CIPHER=AES", getDbPath(DbName).toString()));
     sett.put("hibernate.connection.username", DbName);
     sett.put("hibernate.connection.password", String.format("%s %s", String.valueOf(encrpwd), String.valueOf(pwd)));

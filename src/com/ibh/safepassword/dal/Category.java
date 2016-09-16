@@ -7,7 +7,6 @@ package com.ibh.safepassword.dal;
 
 import java.io.Serializable;
 import java.util.Objects;
-import javax.annotation.Generated;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -35,11 +34,21 @@ public class Category implements Serializable {
   @Size(min = 5, max = 50)
   private String name;
 
+  @Column(name = "COLOR", nullable = false, length = 20)
+  @NotNull
+  private String color;
+
   public Category() {
   }
 
   public Category(String name) {
     this.name = name;
+    this.color = "128,128,128,255";
+  }
+
+  public Category(String name, int red, int green, int blue, int alpha) {
+    this.name = name;
+    this.color = String.format("%s,%s,%s,%s", red, green, blue, alpha);
   }
 
   public Integer getId() {
@@ -58,6 +67,15 @@ public class Category implements Serializable {
     this.name = name;
   }
 
+  public String getColor() {
+    return color;
+  }
+
+  public void setColor(String color) {
+    this.color = color;
+  }
+
+  
   @Override
   public int hashCode() {
     return Objects.hash(id);

@@ -18,6 +18,8 @@ import javax.swing.JOptionPane;
  */
 public class LoginDialog extends javax.swing.JDialog {
 
+  java.util.ResourceBundle _bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
+
   /**
    * Creates new form LoginDialog
    */
@@ -46,6 +48,8 @@ public class LoginDialog extends javax.swing.JDialog {
     txtEncrPwd = new javax.swing.JPasswordField();
     lblEncrPwd = new javax.swing.JLabel();
     lblStatus = new javax.swing.JLabel();
+    jPanel3 = new javax.swing.JPanel();
+    btnOptions = new javax.swing.JButton();
     jPanel2 = new javax.swing.JPanel();
     cmdNewDb = new javax.swing.JButton();
     cmdLogin = new javax.swing.JButton();
@@ -129,6 +133,32 @@ public class LoginDialog extends javax.swing.JDialog {
 
     getContentPane().add(jPanel1, java.awt.BorderLayout.PAGE_START);
 
+    btnOptions.setText(bundle.getString("LoginDialog.btnOptions.text")); // NOI18N
+    btnOptions.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnOptionsActionPerformed(evt);
+      }
+    });
+
+    javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+    jPanel3.setLayout(jPanel3Layout);
+    jPanel3Layout.setHorizontalGroup(
+      jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(jPanel3Layout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(btnOptions)
+        .addContainerGap())
+    );
+    jPanel3Layout.setVerticalGroup(
+      jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(jPanel3Layout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(btnOptions)
+        .addContainerGap(16, Short.MAX_VALUE))
+    );
+
+    getContentPane().add(jPanel3, java.awt.BorderLayout.WEST);
+
     cmdNewDb.setText(bundle.getString("LoginDialog.cmdNewDb.text")); // NOI18N
     cmdNewDb.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -148,7 +178,7 @@ public class LoginDialog extends javax.swing.JDialog {
     jPanel2Layout.setHorizontalGroup(
       jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addContainerGap()
         .addComponent(cmdLogin)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(cmdNewDb)
@@ -164,39 +194,37 @@ public class LoginDialog extends javax.swing.JDialog {
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
-    getContentPane().add(jPanel2, java.awt.BorderLayout.LINE_END);
+    getContentPane().add(jPanel2, java.awt.BorderLayout.EAST);
     jPanel2.getAccessibleContext().setAccessibleParent(this);
 
     pack();
   }// </editor-fold>//GEN-END:initComponents
 
   private void cmdLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdLoginActionPerformed
-    java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
 
     lblStatus.setText("");
     pack();
 
     try {
       if (!((MainFrame) getParent()).getBL().Login(txtUserName.getText().trim(), txtPwd.getPassword(), txtEncrPwd.getPassword())) {
-        lblStatus.setText(bundle.getString("LoginDialog.lblStatus.text"));
+        lblStatus.setText(_bundle.getString("LoginDialog.lblStatus.text"));
         pack();
       } else {
         this.dispose();
       }
     } catch (IBHDatabaseException dbe) {
-      lblStatus.setText(bundle.getString("LoginDialog.lblStatus.DBNOTAvailable"));
+      lblStatus.setText(_bundle.getString("LoginDialog.lblStatus.DBNOTAvailable"));
       pack();
     }
   }//GEN-LAST:event_cmdLoginActionPerformed
 
   private void cmdNewDbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdNewDbActionPerformed
-    java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
 
     if (txtUserName.getText().trim().isEmpty()) {
-      lblStatus.setText(bundle.getString("LoginDialog.lblStatus.UserNameEmpty"));
+      lblStatus.setText(_bundle.getString("LoginDialog.lblStatus.UserNameEmpty"));
       pack();
     } else if (HasSpaceinEncrPwd()) {
-      lblStatus.setText(bundle.getString("LoginDialog.lblStatus.HasSpace"));
+      lblStatus.setText(_bundle.getString("LoginDialog.lblStatus.HasSpace"));
       pack();
     } else {
       lblStatus.setText("");
@@ -204,13 +232,13 @@ public class LoginDialog extends javax.swing.JDialog {
 
       try {
         if (!((MainFrame) getParent()).getBL().CreateDB(txtUserName.getText().trim(), txtPwd.getPassword(), txtEncrPwd.getPassword())) {
-          lblStatus.setText(bundle.getString("LoginDialog.lblStatus.text"));
+          lblStatus.setText(_bundle.getString("LoginDialog.lblStatus.text"));
           pack();
         } else {
           this.dispose();
         }
       } catch (IBHDatabaseException dbe) {
-        lblStatus.setText(bundle.getString("LoginDialog.lblStatus.DBAvailable"));
+        lblStatus.setText(_bundle.getString("LoginDialog.lblStatus.DBAvailable"));
         pack();
       }
     }
@@ -228,11 +256,10 @@ public class LoginDialog extends javax.swing.JDialog {
   private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
     this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     if (((MainFrame) getParent()).getBL().getLoggedInName() == null) {
-      java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
 
       if (JOptionPane.showConfirmDialog(this,
-              bundle.getString("LoginDialog.CloseConfirmation.text"),
-              bundle.getString("LoginDialog.CloseConfirmation.title"),
+              _bundle.getString("LoginDialog.CloseConfirmation.text"),
+              _bundle.getString("LoginDialog.CloseConfirmation.title"),
               JOptionPane.YES_NO_OPTION,
               JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
         System.exit(0);
@@ -241,6 +268,10 @@ public class LoginDialog extends javax.swing.JDialog {
       }
     }
   }//GEN-LAST:event_formWindowClosing
+
+  private void btnOptionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOptionsActionPerformed
+    // TODO add your handling code here:
+  }//GEN-LAST:event_btnOptionsActionPerformed
 
   private byte[] toBytes(char[] chars) {
     CharBuffer charBuffer = CharBuffer.wrap(chars);
@@ -253,10 +284,12 @@ public class LoginDialog extends javax.swing.JDialog {
   }
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
+  private javax.swing.JButton btnOptions;
   private javax.swing.JButton cmdLogin;
   private javax.swing.JButton cmdNewDb;
   private javax.swing.JPanel jPanel1;
   private javax.swing.JPanel jPanel2;
+  private javax.swing.JPanel jPanel3;
   private javax.swing.JLabel lblEncrPwd;
   private javax.swing.JLabel lblPwd;
   private javax.swing.JLabel lblStatus;

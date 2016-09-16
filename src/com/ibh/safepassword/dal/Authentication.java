@@ -5,8 +5,6 @@
  */
 package com.ibh.safepassword.dal;
 
-import com.ibh.safepassword.gui.AuthCRUDDialog;
-import com.oracle.webservices.internal.api.databinding.DatabindingMode;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;

@@ -301,6 +301,7 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
 
     cmbCategory.setEditable(true);
 
+    lblDescription.setLabelFor(txtDescription);
     lblDescription.setText(bundle.getString("AuthCRUDDialog.lblDescription.text")); // NOI18N
 
     txtDescription.setColumns(20);

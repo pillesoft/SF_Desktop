@@ -6,6 +6,7 @@
 package com.ibh.safepassword.gui;
 
 import com.ibh.safepassword.bl.BusinessLogic;
+import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -26,6 +27,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
+import java.awt.Component;
+import java.util.logging.Level;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 
 /**
  *
@@ -40,14 +46,17 @@ public class MainFrame extends javax.swing.JFrame {
   private final int _AuthInfoDialogShowTime = 10;
   private int _AuthInfoDialogShowTimeCounter;
   private final ResourceBundle _bundle;
-  private final int _FieldPosId = 5;
   private final int _FieldPosDescription = 4;
+  private final int _FieldPosId = 5;
+  private final int _FieldPosColor = 6;
 
   /**
    * Creates new form MainFrame
    */
   public MainFrame() {
     initComponents();
+
+    java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 
     _bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
     txtFilterTitle.getDocument().addDocumentListener(
@@ -118,7 +127,9 @@ public class MainFrame extends javax.swing.JFrame {
       _bundle.getString("MainFrame.tblData.ColWebUrl.text"),
       _bundle.getString("MainFrame.tblData.ColValidFrom.text"),
       "Description",
-      "ID"};
+      "ID",
+      "COLOR"
+    };
 
     IBHTableModel dtm = new IBHTableModel();
     sorter = new TableRowSorter<>(dtm);
@@ -126,6 +137,7 @@ public class MainFrame extends javax.swing.JFrame {
     tblData.setModel(dtm);
     tblData.setRowSorter(sorter);
 
+    tblData.removeColumn(tblData.getColumnModel().getColumn(_FieldPosColor));
     tblData.removeColumn(tblData.getColumnModel().getColumn(_FieldPosId));
     tblData.removeColumn(tblData.getColumnModel().getColumn(_FieldPosDescription));
 
@@ -142,6 +154,27 @@ public class MainFrame extends javax.swing.JFrame {
         }
       }
     });
+
+    tblData.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
+      @Override
+      public Component getTableCellRendererComponent(JTable jtable, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+        Component c = super.getTableCellRendererComponent(jtable, value, isSelected, hasFocus, row, col);
+        
+        String[] colors = jtable.getModel().getValueAt(row, _FieldPosColor).toString().split(",");
+        Color color = new Color(Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]), Integer.parseInt(colors[3]));
+        c.setForeground(Color.WHITE);
+        c.setBackground(color);
+
+        if (isSelected) {
+          c.setForeground(jtable.getSelectionForeground());
+          c.setBackground(jtable.getSelectionBackground());
+        }
+        
+        return c;
+      }
+      
+    });
+
   }
 
   private void setTable() {
@@ -159,6 +192,16 @@ public class MainFrame extends javax.swing.JFrame {
 
     }
 
+    
+//        tblData = new javax.swing.JTable() {
+//      public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+//        Component c = super.prepareRenderer(renderer, row, column);
+//        String[] colors = getValueAt(row, _FieldPosColor).toString().split(",");
+//        Color color = new Color(Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]), Integer.parseInt(colors[3]));
+//        c.setBackground(color);
+//        return c;
+//      }
+//    };
   }
 
   /**
@@ -191,17 +234,18 @@ public class MainFrame extends javax.swing.JFrame {
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
     setTitle(bundle.getString("MainFrame.title")); // NOI18N
+    getContentPane().setLayout(new java.awt.BorderLayout(5, 5));
 
-    pnlButtons.setMaximumSize(new java.awt.Dimension(100, 46));
-    pnlButtons.setMinimumSize(new java.awt.Dimension(100, 46));
-    pnlButtons.setPreferredSize(new java.awt.Dimension(100, 300));
+    pnlButtons.setMaximumSize(new java.awt.Dimension(150, 46));
+    pnlButtons.setMinimumSize(new java.awt.Dimension(150, 46));
+    pnlButtons.setPreferredSize(new java.awt.Dimension(150, 300));
     java.awt.FlowLayout flowLayout1 = new java.awt.FlowLayout();
     flowLayout1.setAlignOnBaseline(true);
     pnlButtons.setLayout(flowLayout1);
 
     cmdShow.setText(bundle.getString("MainFrame.cmdShow.text")); // NOI18N
-    cmdShow.setMaximumSize(new java.awt.Dimension(100, 50));
-    cmdShow.setPreferredSize(new java.awt.Dimension(100, 40));
+    cmdShow.setMaximumSize(new java.awt.Dimension(150, 50));
+    cmdShow.setPreferredSize(new java.awt.Dimension(150, 40));
     cmdShow.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         cmdShowActionPerformed(evt);
@@ -210,8 +254,8 @@ public class MainFrame extends javax.swing.JFrame {
     pnlButtons.add(cmdShow);
 
     cmdNew.setText(bundle.getString("MainFrame.cmdNew.text")); // NOI18N
-    cmdNew.setMaximumSize(new java.awt.Dimension(100, 50));
-    cmdNew.setPreferredSize(new java.awt.Dimension(100, 40));
+    cmdNew.setMaximumSize(new java.awt.Dimension(150, 50));
+    cmdNew.setPreferredSize(new java.awt.Dimension(150, 40));
     cmdNew.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         cmdNewActionPerformed(evt);
@@ -220,8 +264,8 @@ public class MainFrame extends javax.swing.JFrame {
     pnlButtons.add(cmdNew);
 
     cmdMod.setText(bundle.getString("MainFrame.cmdMod.text")); // NOI18N
-    cmdMod.setMaximumSize(new java.awt.Dimension(100, 50));
-    cmdMod.setPreferredSize(new java.awt.Dimension(100, 40));
+    cmdMod.setMaximumSize(new java.awt.Dimension(150, 50));
+    cmdMod.setPreferredSize(new java.awt.Dimension(150, 40));
     cmdMod.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         cmdModActionPerformed(evt);
@@ -230,8 +274,8 @@ public class MainFrame extends javax.swing.JFrame {
     pnlButtons.add(cmdMod);
 
     cmdDel.setText(bundle.getString("MainFrame.cmdDel.text")); // NOI18N
-    cmdDel.setMaximumSize(new java.awt.Dimension(100, 50));
-    cmdDel.setPreferredSize(new java.awt.Dimension(100, 40));
+    cmdDel.setMaximumSize(new java.awt.Dimension(150, 50));
+    cmdDel.setPreferredSize(new java.awt.Dimension(150, 40));
     cmdDel.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         cmdDelActionPerformed(evt);
@@ -240,8 +284,13 @@ public class MainFrame extends javax.swing.JFrame {
     pnlButtons.add(cmdDel);
 
     cmdHistory.setText(bundle.getString("MainFrame.cmdHistory.text")); // NOI18N
-    cmdHistory.setMaximumSize(new java.awt.Dimension(100, 50));
-    cmdHistory.setPreferredSize(new java.awt.Dimension(100, 40));
+    cmdHistory.setMaximumSize(new java.awt.Dimension(150, 50));
+    cmdHistory.setPreferredSize(new java.awt.Dimension(150, 40));
+    cmdHistory.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        cmdHistoryActionPerformed(evt);
+      }
+    });
     pnlButtons.add(cmdHistory);
 
     getContentPane().add(pnlButtons, java.awt.BorderLayout.LINE_START);
@@ -320,7 +369,7 @@ public class MainFrame extends javax.swing.JFrame {
       .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlMainLayout.createSequentialGroup()
         .addContainerGap()
         .addGroup(pnlMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
+          .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 525, Short.MAX_VALUE)
           .addComponent(jScrollPane2))
         .addContainerGap())
     );
@@ -329,7 +378,7 @@ public class MainFrame extends javax.swing.JFrame {
       .addGroup(pnlMainLayout.createSequentialGroup()
         .addComponent(pnlFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE)
+        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 171, Short.MAX_VALUE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addContainerGap())
@@ -464,6 +513,16 @@ public class MainFrame extends javax.swing.JFrame {
       acrudd.setVisible(true);
     }
   }//GEN-LAST:event_cmdDelActionPerformed
+
+  private void cmdHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdHistoryActionPerformed
+    int id = getSelectedRowID();
+    if (id != 0) {
+      ShowHistoryDialog histd = new ShowHistoryDialog(this, true, bl, id);
+
+      histd.setVisible(true);
+      
+    }
+  }//GEN-LAST:event_cmdHistoryActionPerformed
 
   private void applyFilter() {
     List<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(2);

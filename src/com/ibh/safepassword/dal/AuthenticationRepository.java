@@ -15,7 +15,7 @@ import org.hibernate.exception.ConstraintViolationException;
  */
 public class AuthenticationRepository extends BaseRepository<Authentication> {
   public List GetAuthLimited(String filtertitle, String filtercateg) {
-    List ret = GetList("SELECT a.title, a.category.name, a.weburl, a.validfrom, a.description, a.id FROM Authentication a");
+    List ret = GetList("SELECT a.title, a.category.name, a.weburl, DATEDIFF('DAY', a.validfrom, CURRENT_DATE()) as numbofdays, a.description, a.id, a.category.color FROM Authentication a");
     
     return ret;
   }
@@ -30,7 +30,10 @@ public class AuthenticationRepository extends BaseRepository<Authentication> {
   public void Update(Authentication obj) throws IBHDbConstraintException {
     Authentication old = GetbyId(obj.getId());
     boolean pwdchanged = false;
-    if (!old.getPassword().equals(obj.getPassword())) {
+    if (old.getPassword() == null && obj.getPassword() != null && !obj.getPassword().isEmpty()) {
+      pwdchanged = true;
+    }
+    if (old.getPassword() != null && !old.getPassword().equals(obj.getPassword())) {
       pwdchanged = true;
     }
     Session sess = DbContext.getSessionFactory().openSession();
