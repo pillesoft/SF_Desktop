@@ -29,21 +29,21 @@ public class AuthenticationRepository extends BaseRepository<Authentication> {
   @Override
   public void Update(Authentication obj) throws IBHDbConstraintException {
     Authentication old = GetbyId(obj.getId());
-    boolean pwdchanged = false;
-    if (old.getPassword() == null && obj.getPassword() != null && !obj.getPassword().isEmpty()) {
-      pwdchanged = true;
-    }
-    if (old.getPassword() != null && !old.getPassword().equals(obj.getPassword())) {
-      pwdchanged = true;
-    }
+//    boolean pwdchanged = false;
+//    if (old.getPassword() == null && obj.getPassword() != null && !obj.getPassword().isEmpty()) {
+//      pwdchanged = true;
+//    }
+//    if (old.getPassword() != null && !old.getPassword().equals(obj.getPassword())) {
+//      pwdchanged = true;
+//    }
     Session sess = DbContext.getSessionFactory().openSession();
     sess.beginTransaction();
     try {
-      if (pwdchanged) {
-        // make pwdchnaged
-        AuthPwdHistory hist = new AuthPwdHistory(obj, old.getPassword());
-        sess.save(hist);
-      }
+//      if (pwdchanged) {
+//        // make pwdchnaged
+//        AuthPwdHistory hist = new AuthPwdHistory(obj, old.getPassword());
+//        sess.save(hist);
+//      }
       sess.merge(obj);
       sess.getTransaction().commit();
     } catch (ConstraintViolationException exc) {

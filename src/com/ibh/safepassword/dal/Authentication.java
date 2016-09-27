@@ -5,13 +5,19 @@
  */
 package com.ibh.safepassword.dal;
 
+import com.ibh.safepassword.bl.Crypt;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
+import java.util.logging.Level;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -53,16 +59,20 @@ public class Authentication implements Serializable {
   @NotNull
   @Size(min = 10, max = 100)
   private String title;
+  
   @Column(name = "USERNAME", nullable = false, length = 100)
   @NotNull
   @Size(min = 4, max = 100)
   private String username;
+  
   @Column(name = "PASSWORD", length = 100)
-  @Size(max = 100)
+  //@Size(max = 100)
   private String password;
+  
   @Column(name = "WEBURL", length = 200)
   @Size(max = 200)
   private String weburl;
+  
   @Column(name = "DESCRIPTION", length = 500)
   @Size(max = 500)
   private String description;
@@ -76,10 +86,9 @@ public class Authentication implements Serializable {
   @NotNull
   private Category category;
 
-//  @Transient
-//  @NotNull
-//  @Size(min = 5, max = 50)
-//  private String categname;
+  @Transient
+  @Size(max = 100)
+  private String pwdclear;
     
   @Transient
   private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
@@ -145,18 +154,18 @@ public class Authentication implements Serializable {
   public String getPassword() {
     return password;
   }
-
-  public void setPassword(String password) {
-    String old = this.password;
-    this.password = password.trim();
-    Set<ConstraintViolation<Authentication>> err = validator.validateProperty(this, "password");
-    if (err.size() > 0) {
-      errors.put("password", err);
-    } else {
-      errors.remove("password");
-    }
-    changeSupport.firePropertyChange("password", old, password);
-  }
+//
+//  public void setPassword(String password) {
+//    String old = this.password;
+//    this.password = password.trim();
+//    Set<ConstraintViolation<Authentication>> err = validator.validateProperty(this, "password");
+//    if (err.size() > 0) {
+//      errors.put("password", err);
+//    } else {
+//      errors.remove("password");
+//    }
+//    changeSupport.firePropertyChange("password", old, password);
+//  }
 
   public String getWeburl() {
     return weburl;
@@ -224,6 +233,34 @@ public class Authentication implements Serializable {
 //    setCategname(category.getName());
   }
 
+  public String getPwdclear() {
+    return pwdclear;
+  }
+
+  public void setPwdclear(String pwdclear) {
+    
+    String old = this.pwdclear;
+    this.pwdclear = pwdclear.trim();
+    Set<ConstraintViolation<Authentication>> err = validator.validateProperty(this, "pwdclear");
+    if (err.size() > 0) {
+      errors.put("pwdclear", err);
+    } else {
+      errors.remove("pwdclear");
+      try {
+        // if there is no error on this field, encrypt the pwd
+        password = Crypt.encrypt(pwdclear.getBytes(StandardCharsets.UTF_8));
+      } catch (InvalidKeyException ex) {
+        java.util.logging.Logger.getLogger(Authentication.class.getName()).log(Level.SEVERE, null, ex);
+      } catch (InvalidAlgorithmParameterException ex) {
+        java.util.logging.Logger.getLogger(Authentication.class.getName()).log(Level.SEVERE, null, ex);
+      } catch (NoSuchAlgorithmException ex) {
+        java.util.logging.Logger.getLogger(Authentication.class.getName()).log(Level.SEVERE, null, ex);
+      }
+    }
+    changeSupport.firePropertyChange("pwdclear", old, pwdclear);
+  }
+
+  
 //  public String getCategname() {
 ////    return categname;
 //    if (getCategory() != null) {

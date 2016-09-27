@@ -201,10 +201,10 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
     binding = Bindings.createAutoBinding(
             AutoBinding.UpdateStrategy.READ_WRITE,
             instance,
-            BeanProperty.create("password"),
+            BeanProperty.create("pwdclear"),
             txtPassword,
             BeanProperty.create("text"),
-            "password"
+            "pwdclear"
     );
     bindingGroup.addBinding(binding);
 

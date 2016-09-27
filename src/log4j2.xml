@@ -31,7 +31,7 @@
     <Logger name="org.hibernate" level="off" additivity="false">
       <AppenderRef ref="Console"/>
     </Logger>
-    <Logger name="com.ibh.safepassord" level="info" additivity="false">
+    <Logger name="com.ibh.safepassword" level="info" additivity="false">
       <AppenderRef ref="RollingFileInfo"/>
     </Logger>
     <Root level="error">

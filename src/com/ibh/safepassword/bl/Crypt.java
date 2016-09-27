@@ -35,6 +35,24 @@ import javax.xml.bind.DatatypeConverter;
 
 public class Crypt {
 
+  private static byte[] keyByte;
+  public static void setKeyByte(String key) {
+    byte[] tempbyte = key.getBytes(StandardCharsets.UTF_8);
+    byte[] pwdbyte = new byte[16];
+    if (tempbyte.length < pwdbyte.length) {
+      int pwdidx = 0;
+      int tempidx = 0;
+      while (pwdidx < 16) {
+        if (tempidx < tempbyte.length) {
+          pwdbyte[pwdidx++] = tempbyte[tempidx++];
+        } else {
+          tempidx = 0;
+        }
+      }
+    }
+    keyByte = pwdbyte;
+  }
+  
   private static class TestCrypt {
 
     String freeword;
@@ -63,7 +81,7 @@ public class Crypt {
     return hashedString;
   }
 
-  public static String encrypt(final byte[] keyBytes, final byte[] messageBytes) throws InvalidKeyException, InvalidAlgorithmParameterException, NoSuchAlgorithmException {
+  public static String encrypt(final byte[] messageBytes) throws InvalidKeyException, InvalidAlgorithmParameterException, NoSuchAlgorithmException {
     KeyGenerator gen = KeyGenerator.getInstance("AES");
     gen.init(128);
     /* 128-bit AES */
@@ -80,7 +98,7 @@ public class Crypt {
     byte[] cypher = transform(Cipher.ENCRYPT_MODE, key, ivBytes, messageBytes);
 //    printByteArray("cypher", cypher);
     
-    byte[] xorkey = xorByteArray(keyBytes, key);
+    byte[] xorkey = xorByteArray(keyByte, key);
 //    printByteArray("xor", cypher);
     
     String xorhex = toHexString(xorkey);
@@ -94,7 +112,7 @@ public class Crypt {
     
   }
 
-  public static byte[] decrypt(final byte[] keyBytes, final String cypher) throws InvalidKeyException, InvalidAlgorithmParameterException {
+  public static byte[] decrypt(final String cypher) throws InvalidKeyException, InvalidAlgorithmParameterException {
 
     String xorhex = cypher.substring(0, 32);
 //    System.out.println("xorhex: " + xorhex);
@@ -104,7 +122,7 @@ public class Crypt {
 //    System.out.println("cyphex: " + cyphex);
     
     byte[] xorbyte = toByteArray(xorhex);
-    byte[] key = xorByteArray(xorbyte, keyBytes);
+    byte[] key = xorByteArray(xorbyte, keyByte);
 //    printByteArray("xor", xorbyte);
 //    printByteArray("key", key);
     
@@ -199,20 +217,21 @@ public class Crypt {
 //    System.out.println(javax.xml.bind.DatatypeConverter.printHexBinary(cipher1));
 //}
     String pwd = "jelszó";
-    byte[] tempbyte = pwd.getBytes(StandardCharsets.UTF_8);
-    byte[] pwdbyte = new byte[16];
-    if (tempbyte.length < pwdbyte.length) {
-      int pwdidx = 0;
-      int tempidx = 0;
-      while (pwdidx < 16) {
-        if (tempidx < tempbyte.length) {
-          pwdbyte[pwdidx++] = tempbyte[tempidx++];
-        } else {
-          tempidx = 0;
-        }
-      }
-    }
-    printByteArray("pwd", pwdbyte);
+    setKeyByte(pwd);
+//    byte[] tempbyte = pwd.getBytes(StandardCharsets.UTF_8);
+//    byte[] pwdbyte = new byte[16];
+//    if (tempbyte.length < pwdbyte.length) {
+//      int pwdidx = 0;
+//      int tempidx = 0;
+//      while (pwdidx < 16) {
+//        if (tempidx < tempbyte.length) {
+//          pwdbyte[pwdidx++] = tempbyte[tempidx++];
+//        } else {
+//          tempidx = 0;
+//        }
+//      }
+//    }
+//    printByteArray("pwd", pwdbyte);
 
 //    //String newpwd = new String(pwdbyte);
 //    KeyGenerator gen = KeyGenerator.getInstance("AES");
@@ -297,7 +316,7 @@ public class Crypt {
 //        System.out.println(w);
 //        byte[] bytetoencr = Base64.getDecoder().decode(w);
       byte[] bytetoencr = w.getBytes(StandardCharsets.UTF_8);
-      String c = encrypt(pwdbyte, bytetoencr);
+      String c = encrypt(bytetoencr);
       TestCrypt tc = new TestCrypt(w, c);
       words.add(tc);
       //System.out.println(matcher.group(1));
@@ -309,7 +328,7 @@ public class Crypt {
 
     System.out.println("DECRYPT");
     for (TestCrypt tc : words) {
-      String decrypted = new String(decrypt(pwdbyte, tc.getCypherword()));
+      String decrypted = new String(decrypt(tc.getCypherword()));
       if (!tc.getFreeword().equals(decrypted)) {
         System.out.println(String.format("%s - %s - %s", tc.getFreeword(), tc.getCypherword(), decrypted));
       }
