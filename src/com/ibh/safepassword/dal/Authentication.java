@@ -57,7 +57,7 @@ public class Authentication implements Serializable {
 
   @Column(name = "TITLE", nullable = false, unique = true, length = 100)
   @NotNull
-  @Size(min = 10, max = 100)
+  @Size(min = 5, max = 100)
   private String title;
   
   @Column(name = "USERNAME", nullable = false, length = 100)

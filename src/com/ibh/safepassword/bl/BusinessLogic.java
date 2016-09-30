@@ -67,6 +67,7 @@ public class BusinessLogic {
     try {
       DbContext.CreateDatabase(DbName, pwd, encrpwd);
       loggedInName = DbName;
+      Crypt.setKeyByte(String.valueOf(pwd));
       return true;
     }
     catch (IBHDatabaseException dbe) {
