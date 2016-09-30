@@ -6,14 +6,11 @@
 package com.ibh.safepassword;
 
 import com.ibh.safepassword.gui.MainFrame;
-import java.util.Collections;
-import java.util.List;
 
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.util.logging.Logger;
 
 
 
@@ -23,20 +20,16 @@ import java.util.logging.Logger;
  */
 public class SF_Desktop {
 
+  private static final Logger logger = LogManager.getLogger(SF_Desktop.class.getName());
+
   /**
    * @param args the command line arguments
    */
   public static void main(String[] args) {
+
     
     System.out.println(Locale.getDefault());
-
-    //java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
-
-    //magical - do not touch
-    @SuppressWarnings("unused")
-    org.jboss.logging.Logger logger = org.jboss.logging.Logger.getLogger("org.hibernate");
-    java.util.logging.Logger.getLogger("org.hibernate").setLevel(java.util.logging.Level.WARNING); //or whatever level you need
-    
+  
     /* Set the Nimbus look and feel */
     /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
@@ -49,22 +42,25 @@ public class SF_Desktop {
         }
       }
     } catch (ClassNotFoundException ex) {
-      java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+      logger.error("", ex);
     } catch (InstantiationException ex) {
-      java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+      logger.error("", ex);
     } catch (IllegalAccessException ex) {
-      java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+      logger.error("", ex);
     } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-      java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+      logger.error("", ex);
     }
 
 
     java.awt.EventQueue.invokeLater(new Runnable() {
       public void run() {
         
-        MainFrame mf = new MainFrame();
-        
-        //new MainFrame().setVisible(true);
+        try {
+          MainFrame mf = new MainFrame();
+        }
+        catch (Exception ex) {
+          logger.error("Unexpected Error", ex);
+        }
       }
     });
     

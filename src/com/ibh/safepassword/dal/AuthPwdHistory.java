@@ -42,7 +42,7 @@ public class AuthPwdHistory  implements Serializable {
   @OnDelete(action = OnDeleteAction.CASCADE)
   private final Authentication authentication;
   
-  @Column(name = "PASSWORD", length = 100)
+  @Column(name = "PASSWORD", length = 200)
   private final String password;
 
   @Column(name = "EXPIRED")

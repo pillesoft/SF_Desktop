@@ -61,6 +61,22 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
 //    List<String> categlist = _bl.getCategRepos().GetList("select c.name from Category c order by c.name");
     List<Category> categlist = _bl.getCategRepos().GetList();
 
+    //    String[] categarray = categlist.toArray(new String[0]);
+//    DefaultComboBoxModel<String> cbm;
+    Category[] categarray = categlist.toArray(new Category[0]);
+    DefaultComboBoxModel<Category> cbm;
+    if (categarray.length > 0) {
+      cbm = new DefaultComboBoxModel<>(categarray);
+    } else {
+      Vector categv = new Vector();
+      categv.add(new Category(""));
+      cbm = new DefaultComboBoxModel<>(categv);
+    }
+    cmbCategory.setModel(cbm);
+
+    cmbCategory.setRenderer(new IBHCategoryComboRenderer());
+    cmbCategory.setEditor(new IBHCategoryComboEditor());
+
     // settings depending on the mode
     switch (_mode) {
       case New:
@@ -80,30 +96,26 @@ public class AuthCRUDDialog extends javax.swing.JDialog {
         setTitle(bundle.getString("AuthCRUDDialog.title_update"));
         instance = bl.getAuthRepos().GetbyId(id);
         setPropChangeListener();
+
         break;
       case Delete:
         setTitle(bundle.getString("AuthCRUDDialog.title_delete"));
         cmdSave.setText(bundle.getString("AuthCRUDDialog.cmbSave.text_delete"));
         instance = bl.getAuthRepos().GetbyId(id);
+        
         setPropChangeListener();
+        
+        // set all controls to readonly
+        txtTitle.setEditable(false);
+        txtUserName.setEditable(false);
+        txtPassword.setEditable(false);
+        txtWebUrl.setEditable(false);
+        txtValidFrom.setEditable(false);
+        txtDescription.setEditable(false);
+        cmbCategory.setEditable(false);
+        
         break;
     }
-
-//    String[] categarray = categlist.toArray(new String[0]);
-//    DefaultComboBoxModel<String> cbm;
-    Category[] categarray = categlist.toArray(new Category[0]);
-    DefaultComboBoxModel<Category> cbm;
-    if (categarray.length > 0) {
-      cbm = new DefaultComboBoxModel<>(categarray);
-    } else {
-      Vector categv = new Vector();
-      categv.add(new Category(""));
-      cbm = new DefaultComboBoxModel<>(categv);
-    }
-    cmbCategory.setModel(cbm);
-
-    cmbCategory.setRenderer(new IBHCategoryComboRenderer());
-    cmbCategory.setEditor(new IBHCategoryComboEditor());
 
     this.pack();
   }

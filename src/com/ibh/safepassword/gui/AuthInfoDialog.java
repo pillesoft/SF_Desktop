@@ -31,7 +31,7 @@ public class AuthInfoDialog extends javax.swing.JDialog {
     setTitle(getTitle() + " - " + ai.getTitle());
     
     txtUserName.setText(ai.getUsername());
-    txtPassword.setText(ai.getPassword());
+    txtPassword.setText(ai.getPwdClear());
     
     ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/ibh/safepassword/gui/Bundle"); // NOI18N
     cmdClose.setText(String.format("%s (%s)", bundle.getString("AuthInfoDialog.cmdClose.text"), maxshowtime));

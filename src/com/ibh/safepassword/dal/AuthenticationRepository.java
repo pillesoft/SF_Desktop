@@ -5,7 +5,12 @@
  */
 package com.ibh.safepassword.dal;
 
+import com.ibh.safepassword.bl.Crypt;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 
@@ -19,6 +24,14 @@ public class AuthenticationRepository extends BaseRepository<Authentication> {
     
     return ret;
   }
+
+  @Override
+  public Authentication GetbyId(int id) {
+    Authentication a = super.GetbyId(id);
+    a.setPwdClearInit();
+    
+    return a;
+  }
   
   public AuthInfo GetAuthInfo(int id) {
     Authentication a = GetbyId(id);
@@ -29,21 +42,15 @@ public class AuthenticationRepository extends BaseRepository<Authentication> {
   @Override
   public void Update(Authentication obj) throws IBHDbConstraintException {
     Authentication old = GetbyId(obj.getId());
-//    boolean pwdchanged = false;
-//    if (old.getPassword() == null && obj.getPassword() != null && !obj.getPassword().isEmpty()) {
-//      pwdchanged = true;
-//    }
-//    if (old.getPassword() != null && !old.getPassword().equals(obj.getPassword())) {
-//      pwdchanged = true;
-//    }
+
     Session sess = DbContext.getSessionFactory().openSession();
     sess.beginTransaction();
     try {
-//      if (pwdchanged) {
-//        // make pwdchnaged
-//        AuthPwdHistory hist = new AuthPwdHistory(obj, old.getPassword());
-//        sess.save(hist);
-//      }
+      if (obj.getIsPwdChanged()) {
+        // make pwdchnaged
+        AuthPwdHistory hist = new AuthPwdHistory(obj, old.getPassword());
+        sess.save(hist);
+      }
       sess.merge(obj);
       sess.getTransaction().commit();
     } catch (ConstraintViolationException exc) {

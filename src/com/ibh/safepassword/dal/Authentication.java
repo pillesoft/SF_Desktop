@@ -65,7 +65,7 @@ public class Authentication implements Serializable {
   @Size(min = 4, max = 100)
   private String username;
   
-  @Column(name = "PASSWORD", length = 100)
+  @Column(name = "PASSWORD", length = 200)
   //@Size(max = 100)
   private String password;
   
@@ -87,9 +87,12 @@ public class Authentication implements Serializable {
   private Category category;
 
   @Transient
-  @Size(max = 100)
+  @Size(max = 50)
   private String pwdclear;
-    
+  
+  @Transient
+  private boolean ispwdchanged;
+  
   @Transient
   private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
@@ -250,16 +253,45 @@ public class Authentication implements Serializable {
         // if there is no error on this field, encrypt the pwd
         password = Crypt.encrypt(pwdclear.getBytes(StandardCharsets.UTF_8));
       } catch (InvalidKeyException ex) {
-        java.util.logging.Logger.getLogger(Authentication.class.getName()).log(Level.SEVERE, null, ex);
+        logger.error("encrypt error", ex);
       } catch (InvalidAlgorithmParameterException ex) {
-        java.util.logging.Logger.getLogger(Authentication.class.getName()).log(Level.SEVERE, null, ex);
+        logger.error("encrypt error", ex);
       } catch (NoSuchAlgorithmException ex) {
-        java.util.logging.Logger.getLogger(Authentication.class.getName()).log(Level.SEVERE, null, ex);
+        logger.error("encrypt error", ex);
+      }
+      catch (Exception ex) {
+        logger.error("encrypt error", ex);
       }
     }
+    
+    // find out if pwd is changed
+    ispwdchanged = false;
+    if (old == null && this.pwdclear != null && !this.pwdclear.isEmpty()) {
+      ispwdchanged = true;
+    }
+    if (old != null && !old.equals(this.pwdclear)) {
+      ispwdchanged = true;
+    }
+
     changeSupport.firePropertyChange("pwdclear", old, pwdclear);
   }
 
+  public void setPwdClearInit() {
+    ispwdchanged = false;
+    try {
+      this.pwdclear = "";
+      if (password != null) {
+        this.pwdclear = new String(Crypt.decrypt(password));
+      }
+    } catch (InvalidKeyException ex) {
+      logger.error("decrypt error", ex);
+    } catch (InvalidAlgorithmParameterException ex) {
+      logger.error("decrypt error", ex);
+    }
+    catch (Exception ex) {
+      logger.error("decrypt error", ex);
+    }
+  }
   
 //  public String getCategname() {
 ////    return categname;
@@ -295,6 +327,10 @@ public class Authentication implements Serializable {
     this.id = id;
   }
 
+  public boolean getIsPwdChanged() {
+    return ispwdchanged;
+  }  
+  
   @Override
   public int hashCode() {
     return Objects.hash(id);

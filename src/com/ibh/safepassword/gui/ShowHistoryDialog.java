@@ -6,12 +6,16 @@
 package com.ibh.safepassword.gui;
 
 import com.ibh.safepassword.bl.BusinessLogic;
+import com.ibh.safepassword.bl.Crypt;
 import com.ibh.safepassword.dal.Authentication;
 import java.awt.Color;
 import java.awt.Component;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
@@ -44,24 +48,23 @@ public class ShowHistoryDialog extends javax.swing.JDialog {
     initComponents();
 
     this._bl = bl;
-    
+
     initTable();
-    
+
     setData(id);
   }
-  
+
   private void initTable() {
 
     String[] columnNames = {
       _bundle.getString("ShowHistoryDialog.tblPwdHistory.ColPassword.text"),
-      _bundle.getString("ShowHistoryDialog.tblPwdHistory.ColExpired.text"),
-    };
+      _bundle.getString("ShowHistoryDialog.tblPwdHistory.ColExpired.text"),};
 
     IBHTableModel dtm = new IBHTableModel();
-    sorter = new TableRowSorter<>(dtm);
+    //sorter = new TableRowSorter<>(dtm);
     dtm.setColumnIdentifiers(columnNames);
     tblPwdHistory.setModel(dtm);
-    tblPwdHistory.setRowSorter(sorter);
+    //tblPwdHistory.setRowSorter(sorter);
 
   }
 
@@ -71,11 +74,11 @@ public class ShowHistoryDialog extends javax.swing.JDialog {
     HashMap<String, Object> parameters = new HashMap<>();
     parameters.put("id", id);
     List authl = _bl.getAuthRepos().GetList(queryexpr, parameters);
-    Object[] auth = (Object[])authl.get(0);
-    
+    Object[] auth = (Object[]) authl.get(0);
+
     setTitle(String.format(_bundle.getString("ShowHistoryDialog.title"), auth[0]));
     txtUserName.setText(auth[1].toString());
-    
+
     DefaultTableModel tm = (DefaultTableModel) tblPwdHistory.getModel();
     if (tm.getRowCount() > 0) {
       for (int i = tm.getRowCount(); i > 0; i--) {
@@ -88,16 +91,24 @@ public class ShowHistoryDialog extends javax.swing.JDialog {
     List data = _bl.getAuthHistRepos().GetList(queryexpr, parameters);
     if (data.isEmpty()) {
       JOptionPane.showMessageDialog(this, _bundle.getString("ShowHistoryDialog.PwdListEmpty"), this.getTitle(), JOptionPane.INFORMATION_MESSAGE);
-    }
-    for (Object row : data) {
-      Object[] rowdata = (Object[]) row;
-      tm.addRow(rowdata);
-
+      this.dispose();
+    } else {
+      for (Object row : data) {
+        Object[] rowdata = (Object[]) row;
+        try {
+          if (rowdata[0] != null) {
+            rowdata[0] = new String(Crypt.decrypt(rowdata[0].toString()));
+          }
+        } catch (InvalidKeyException ex) {
+          logger.error("decrypt error", ex);
+        } catch (InvalidAlgorithmParameterException ex) {
+          logger.error("decrypt error", ex);
+        }
+        tm.addRow(rowdata);
+      }
     }
 
   }
-
-
 
   /**
    * This method is called from within the constructor to initialize the form.
