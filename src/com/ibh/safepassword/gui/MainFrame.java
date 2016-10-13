@@ -147,6 +147,7 @@ public class MainFrame extends javax.swing.JFrame {
         int selrow = tblData.getSelectedRow();
         txtDescription.setText("");
         if (selrow > -1) {
+          selrow = tblData.getRowSorter().convertRowIndexToModel(selrow);
           Object descvalue = tblData.getModel().getValueAt(selrow, _FieldPosDescription);
           if (descvalue != null) {
             txtDescription.setText(descvalue.toString());
