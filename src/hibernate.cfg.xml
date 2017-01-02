@@ -10,7 +10,6 @@
     <property name="hibernate.session.events.log">false</property>
     <property name="hibernate.generate_statistics">false</property>
     <!--    <property name="hibernate.hbm2ddl.auto">create</property>-->
-    
     <mapping class="com.ibh.safepassword.dal.Category"/>
     <mapping class="com.ibh.safepassword.dal.Authentication"/>
     <mapping class="com.ibh.safepassword.dal.AuthPwdHistory"/>
